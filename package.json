@@ -2,12 +2,57 @@
   "name": "pear-desktop-mobile-project",
   "main": "expo-router/entry",
   "version": "1.0.0",
+
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "dev:web": "expo start --web --port 8081",
+    "dev:electron": "cross-env NODE_ENV=development APP_DEV_URL=http://localhost:8081 electron ./electron/main.js",
+    "dev:desktop": "concurrently -k -n web,electron -c blue,green \"npm run dev:web\" \"wait-on http://localhost:8081 && npm run dev:electron\"",
+    "build:web": "expo export --platform web --output-dir dist-web",
+    "build:electron": "npm run build:web && cross-env NODE_ENV=production electron-builder",
+    "start:electron:prod": "npm run build:web && cross-env NODE_ENV=production electron ./electron/main.js"
   },
+
+  
+  "homepage": "./",
+  
+  "build": {
+    "appId": "com.yourcompany.peardesktopmobile",
+    "productName": "Pear Desktop Mobile",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist-web/**/*",
+      "electron/**/*",
+      "!electron/tsconfig.json",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets/images/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/images/icon.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/images/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/images/icon.png"
+    }
+  },
+
+
+
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@react-navigation/native": "^7.1.8",
@@ -22,16 +67,21 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
-    "react-native-worklets": "0.5.1",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
-    "react-native-web": "~0.21.0"
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12",
     "react-test-renderer": "19.1.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "wait-on": "^9.0.1"
   },
   "private": true
 }
