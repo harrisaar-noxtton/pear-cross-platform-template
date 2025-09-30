@@ -1,4 +1,4 @@
-# Pear Desktop Mobile Project
+# Pear Cross Platform Template
 
 A cross-platform template that demonstrates how to use React Native, TypeScript, and Electron in the same project. This template allows you to write code once and deploy it across multiple platforms: desktop (Windows, macOS, Linux), mobile (iOS, Android), and web.
 

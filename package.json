@@ -1,5 +1,5 @@
 {
-  "name": "pear-desktop-mobile-project",
+  "name": "pear-cross-platform-template",
   "main": "expo-router/entry",
   "version": "1.0.0",
 
@@ -20,8 +20,8 @@
   "homepage": "./",
   
   "build": {
-    "appId": "com.yourcompany.peardesktopmobile",
-    "productName": "Pear Desktop Mobile",
+    "appId": "com.yourcompany.pearcrossplatformtemplate",
+    "productName": "Pear Cross Platform Template",
     "directories": {
       "output": "electron-dist"
     },

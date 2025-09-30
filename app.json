@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "pear-desktop-mobile-project",
-    "slug": "pear-desktop-mobile-project",
+    "name": "pear-cross-platform-template",
+    "slug": "pear-cross-platform-template",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "peardesktopmobileproject",
+    "scheme": "pearcrossplatformtemplate",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
