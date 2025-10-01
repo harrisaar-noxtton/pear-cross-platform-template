@@ -3,17 +3,17 @@ import RPC from 'bare-rpc';
 import { Paths } from 'expo-file-system';
 import React, { useRef, useState } from 'react';
 import {
-	ActivityIndicator,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { Worklet } from 'react-native-bare-kit';
 import {
-	RPC_JOIN_SWARM,
-	RPC_PEERS_UPDATED,
-	RPC_SWARM_JOINED
+  RPC_JOIN_SWARM,
+  RPC_PEERS_UPDATED,
+  RPC_SWARM_JOINED
 } from '../rpc-commands.mjs';
 import bundle from './app.bundle.mjs';
 
