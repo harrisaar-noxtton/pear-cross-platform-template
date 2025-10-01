@@ -1,6 +1,6 @@
 {
   "name": "pear-cross-platform-template",
-  "main": "index.html",
+  "main": "dist-web/index.html",
   "version": "1.0.0",
   "scripts": {
     "start:clear": "expo start --clear",
