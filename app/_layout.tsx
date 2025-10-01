@@ -41,11 +41,15 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+  
+  if (error){
+    return <Redirect href={"/"} />
+  }
 
   // Show app even if fonts fail to load
   if (!loaded && !error) {
     console.log("failed!")
-    return <Redirect href={"/"}/>
+    return null;
   }
 
   return <RootLayoutNav />;
