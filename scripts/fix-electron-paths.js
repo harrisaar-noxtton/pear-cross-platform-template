@@ -5,7 +5,7 @@ const path = require('path');
 const htmlPath = path.join(__dirname, '../dist-web/index.html');
 let html = fs.readFileSync(htmlPath, 'utf8');
 
-// Convert absolute paths to relative paths
+// Convert absolute paths to relative paths for Pear
 html = html.replace(/href="\/_expo\//g, 'href="./_expo/');
 html = html.replace(/src="\/_expo\//g, 'src="./_expo/');
 
@@ -18,5 +18,11 @@ if (!html.includes('<base')) {
   html = html.replace('<head>', '<head>\n  <base href="./">');
 }
 
+// Add Pear-specific meta tags
+if (!html.includes('pear-app')) {
+  const metaTag = '  <meta name="application-type" content="pear-app">\n';
+  html = html.replace('<head>', '<head>\n' + metaTag);
+}
+
 fs.writeFileSync(htmlPath, html);
-console.log('Fixed asset paths for Electron');
+console.log('Fixed asset paths for Pear');

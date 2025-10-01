@@ -1,60 +1,40 @@
 {
   "name": "pear-cross-platform-template",
-  "main": "expo-router/entry",
+  "main": "index.html",
   "version": "1.0.0",
-
   "scripts": {
     "start:clear": "expo start --clear",
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios",
+    "ios": "expo start --ios", 
     "web": "expo start --web",
     "dev:web": "expo start --web --port 8081",
-    "dev:electron": "cross-env NODE_ENV=development APP_DEV_URL=http://localhost:8081 electron ./electron/main.js",
-    "dev:desktop": "concurrently -k -n web,electron -c blue,green \"npm run dev:web\" \"wait-on http://localhost:8081 && npm run dev:electron\"",
-    "build:web": "expo export --platform web --output-dir dist-web && node scripts/fix-electron-paths.js",
-    "build:electron": "npm run build:web && cross-env NODE_ENV=production electron-builder",
-    "start:electron:prod": "npm run build:web && cross-env NODE_ENV=production electron ./electron/main.js"
+    "fix:paths": "node scripts/fix-electron-paths.js",
+
+    "build:web": "expo export --platform web --output-dir dist-web && npm run fix:paths",
+    "build:pear": "npm run build:web",
+    "dev:pear": "npm run build:pear && pear run --dev .",
+    "stage:pear": "npm run build:pear && pear stage .",
+    "release:pear": "npm run build:pear && pear release"
   },
-
-
-  
-  "homepage": "./",
-  
-  "build": {
-    "appId": "com.yourcompany.pearcrossplatformtemplate",
-    "productName": "Pear Cross Platform Template",
-    "directories": {
-      "output": "electron-dist"
+  "pear": {
+    "name": "pearcrossplatformtemplate",
+    "gui": {
+      "width": 1200,
+      "height": 800,
+      "center": true,
+      "resizable": true,
+      "backgroundColor": "#ffffff"
     },
-    "files": [
-      "dist-web/**/*",
-      "electron/**/*",
-      "!electron/tsconfig.json",
-      "package.json"
-    ],
-    "extraResources": [
-      {
-        "from": "assets/images/icon.png",
-        "to": "icon.png"
-      }
-    ],
-    "mac": {
-      "category": "public.app-category.productivity",
-      "icon": "assets/images/icon.png"
+    "stage": {
+      "entrypoints": ["index.html"],
+      "prefetch": ["dist-web/**/*"]
     },
-    "win": {
-      "target": "nsis",
-      "icon": "assets/images/icon.png"
-    },
-    "linux": {
-      "target": "AppImage",
-      "icon": "assets/images/icon.png"
-    }
+    "links": [
+      "https://*",
+      "http://localhost:*"
+    ]
   },
-
-
-
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@react-navigation/native": "^7.1.8",
@@ -79,8 +59,6 @@
     "@types/react": "~19.1.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
-    "electron": "^38.2.0",
-    "electron-builder": "^26.0.12",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2",
     "wait-on": "^9.0.1"

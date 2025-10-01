@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pear Cross Platform Template</title>
+    <base href="./">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+        #app-container {
+            width: 100%;
+            height: 100vh;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Loading Pear Cross Platform App...</div>
+    <div id="app-container" style="display: none;">
+        <iframe id="expo-app" src="./dist-web/index.html"></iframe>
+    </div>
+
+    <script>
+        // Pear API detection and initialization
+        if (typeof Pear !== 'undefined') {
+            console.log('Pear environment detected');
+            console.log('Pear config:', Pear.config);
+            
+            // Handle Pear-specific functionality
+            Pear.teardown(() => {
+                console.log('Pear app is tearing down');
+            });
+
+            // Listen for messages from Pear
+            Pear.messages().on('data', (message) => {
+                console.log('Pear message received:', message);
+            });
+
+            // Handle wakeups (when app is opened via pear:// link)
+            Pear.wakeups((wakeup) => {
+                console.log('App woken up:', wakeup);
+            });
+        }
+
+        // Load the Expo web app
+        document.addEventListener('DOMContentLoaded', function() {
+            const iframe = document.getElementById('expo-app');
+            const loading = document.getElementById('loading');
+            const container = document.getElementById('app-container');
+
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                container.style.display = 'block';
+                console.log('Expo web app loaded successfully');
+            };
+
+            iframe.onerror = function() {
+                console.error('Failed to load Expo web app');
+                loading.innerHTML = 'Failed to load application. Please ensure the web build exists.';
+            };
+
+            // Fallback timeout
+            setTimeout(() => {
+                if (loading.style.display !== 'none') {
+                    loading.style.display = 'none';
+                    container.style.display = 'block';
+                }
+            }, 5000);
+        });
+
+        // Handle communication between Pear and the Expo app
+        window.addEventListener('message', function(event) {
+            // Handle messages from the iframe if needed
+            console.log('Message from iframe:', event.data);
+        });
+    </script>
+</body>
+</html>
