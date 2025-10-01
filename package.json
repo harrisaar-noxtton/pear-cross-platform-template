@@ -3,15 +3,16 @@
   "main": "dist-web/index.html",
   "version": "1.0.0",
   "scripts": {
+    "set-main-expo": "node scripts/change-package-main-value.js 'expo-router/entry'",
+    "set-main-pear": "node scripts/change-package-main-value.js 'dist-web/index.html'",
+
+    "fix:paths": "node scripts/fix-electron-paths.js",
+    "web": "expo start --web",
     "start:clear": "expo start --clear",
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios", 
-    "web": "expo start --web",
+    "ios": "expo start --ios",
     "dev:web": "expo start --web --port 8081",
-    "fix:paths": "node scripts/fix-electron-paths.js",
-
-    "build:web": "expo export --platform web --output-dir dist-web && npm run fix:paths",
     "build:pear": "npm run build:web",
     "dev:pear": "npm run build:pear && pear run --dev .",
     "stage:pear": "npm run build:pear && pear stage .",
@@ -27,8 +28,12 @@
       "backgroundColor": "#ffffff"
     },
     "stage": {
-      "entrypoints": ["index.html"],
-      "prefetch": ["dist-web/**/*"]
+      "entrypoints": [
+        "index.html"
+      ],
+      "prefetch": [
+        "dist-web/**/*"
+      ]
     },
     "links": [
       "https://*",
