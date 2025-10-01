@@ -17,7 +17,18 @@ import {
 import { NetworkService } from './NetworkService.mjs'
 import { NotesCoreService } from './NotesCoreService.mjs'
 
-const { IPC } = BareKit
+console.log("backend.mjs loading")
+
+let ipcOrPipe;
+if (typeof Pear !== 'undefined' && Pear.worker) {
+  ipcOrPipe = Pear.worker.pipe();  // Desktop (Pear worker)
+  console.log("it was Pear, create Desktop ")
+} else {
+  const { IPC } = BareKit;
+  ipcOrPipe = IPC;  // Mobile (Worklet) or pure Bare
+  console.log("it was Bare, creat BareKit")
+}
+
 
 const path = join(URL.fileURLToPath(Bare.argv[0]), 'school-notes-app')
 
@@ -27,6 +38,13 @@ console.log("trying to join", path)
 //  (no need for QR codes or sharing manually.)
 const TOPIC = Bare.argv[1]
 
+console.log("TOPIC", TOPIC)
+
+Bare.on('teardown', async () => {
+  console.log('teardown')
+  await destroyConnections()
+})
+
 const networkService = new NetworkService()
 const notesCoreService = new NotesCoreService(path)
 
@@ -34,11 +52,6 @@ async function destroyConnections() {
   await networkService.destroy()
   await notesCoreService.close()
 }
-
-Bare.on('teardown', async () => {
-  console.log('teardown')
-  await destroyConnections()
-})
 
 let rpc
 
@@ -75,7 +88,7 @@ networkService.onPeerMessage(async (payload, peerId) => {
   }
 })
 
-rpc = new RPC(IPC, async (req, error) => {
+rpc = new RPC(ipcOrPipe, async (req, error) => {
   if (req.command === RPC_JOIN_SWARM) {
     await notesCoreService.initialize()
 

@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
+import DesktopWorkletDemo from '@/components/DesktopWorkletDemo';
 import { Text, View } from '@/components/Themed';
+
 
 export default function PeersWorkletDemoScreen() {
   const [MobileWorkletDemo, setMobileWorkletDemo] = useState<React.ComponentType | null>(null);
@@ -17,7 +19,7 @@ export default function PeersWorkletDemoScreen() {
         .catch((error) => {
           console.error('Failed to load MobileWorkletDemo:', error);
         });
-    }
+    } 
   }, []);
 
   console.log("PeersWorkletDemoScreen v41");
@@ -26,11 +28,7 @@ export default function PeersWorkletDemoScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>PeersWorkletDemoScreen v41</Text>
       {Platform.OS !== 'web' && MobileWorkletDemo && <MobileWorkletDemo />}
-      {Platform.OS === 'web' && (
-        <Text style={styles.webMessage}>
-          Worklet demo is not available on web platform
-        </Text>
-      )}
+      {Platform.OS === 'web' && <DesktopWorkletDemo />}
       <View 
         style={styles.separator} 
         lightColor="#eee"   
@@ -39,8 +37,6 @@ export default function PeersWorkletDemoScreen() {
     </View>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: {

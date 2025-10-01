@@ -96,7 +96,7 @@ export default function WorkletDemo() {
           style={styles.joinButton}
           onPress={handleJoinNetwork}
         >
-          <Text style={styles.buttonText}>Join Swarm v2</Text>
+          <Text style={styles.buttonText}>Join Swarm MOBILE</Text>
         </TouchableOpacity>
       </View>
     )

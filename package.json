@@ -3,7 +3,8 @@
   "main": "dist-web/index.html",
   "version": "1.0.0",
   "scripts": {
-    "build-pear-end": "npx bare-pack --target ios --target android  --linked --out components/app.bundle.mjs backend/backend.mjs",
+    "build-worker": "npx bare-pack --target ios --target android --linked --out desktop-backend/app.bundle.mjs backend/backend.mjs",
+    "build-pear-end": "npx bare-pack --target ios --target android --linked --out components/app.bundle.mjs backend/backend.mjs",
     "set-main-expo": "node scripts/change-package-main-value.js 'expo-router/entry'",
     "set-main-pear": "node scripts/change-package-main-value.js 'dist-web/index.html'",
     "fix-paths": "node scripts/fix-expo-build-paths.js",
@@ -52,6 +53,7 @@
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
     "expo-web-browser": "~15.0.7",
+    "hrpc": "^4.2.0",
     "hypercore": "^11.16.2",
     "hyperswarm": "^4.14.0",
     "react": "19.1.0",
