@@ -44,8 +44,9 @@ Both windows reflect the same codebase and update simultaneously during developm
 
 ### Project Tree
 
+
 ```
-pear-desktop-mobile-project
+pear-cross-platform-template
 ├─ README.md
 ├─ app
 │  ├─ (tabs)
@@ -78,6 +79,21 @@ pear-desktop-mobile-project
 │  └─ useColorScheme.web.ts
 ├─ constants
 │  └─ Colors.ts
+├─ dist-web
+│  ├─ _expo
+│  │  └─ static
+│  │     ├─ css
+│  │     │  └─ modal.module-33361d5c796745334f151cac6c469469.css
+│  │     └─ js
+│  │        └─ web
+│  │           └─ entry-445b9f5c5b18541207a554e516c433a7.js
+│  ├─ assets
+│  │  └─ assets
+│  │     └─ fonts
+│  │        └─ SpaceMono-Regular.49a79d66bdea2debf1832bf4d7aca127.ttf
+│  ├─ favicon.ico
+│  ├─ index.html
+│  └─ metadata.json
 ├─ electron
 │  ├─ main.js
 │  └─ preload.js

@@ -5,6 +5,9 @@ const isDev = process.env.NODE_ENV === 'development';
 const devURL = process.env.APP_DEV_URL || 'http://localhost:8081';
 
 function createWindow() {
+
+  console.log("starting", isDev)
+  
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -20,10 +23,12 @@ function createWindow() {
   // Load the app
   if (isDev) {
     win.loadURL(devURL);
-    win.webContents.openDevTools(); // Open DevTools in development
   } else {
     win.loadFile(path.join(__dirname, '../dist-web/index.html'));
   }
+
+  // Always open DevTools (both development and production)
+  win.webContents.openDevTools();
 
   // Show window when ready to prevent visual flash
   win.once('ready-to-show', () => {
@@ -47,22 +52,21 @@ app.whenReady().then(() => {
     }
   });
 
-  // Set up menu (optional, removes default Electron menu)
-  if (isDev) {
-    // Keep default menu in development for DevTools access
-  } else {
-    Menu.setApplicationMenu(null); // Remove menu in production
+  // Set up menu - keep default menu to access DevTools via menu
+  if (!isDev) {
+    // You might want to keep the menu in production too for DevTools access
+    // Comment out the line below if you want to keep the default menu
+    // Menu.setApplicationMenu(null);
   }
 });
 
-// Quit when all windows are closed
+// Rest of your code remains the same...
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-// Security: Prevent new window creation
 app.on('web-contents-created', (event, contents) => {
   contents.on('new-window', (navigationEvent, navigationURL) => {
     navigationEvent.preventDefault();
