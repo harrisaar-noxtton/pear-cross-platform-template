@@ -14,10 +14,10 @@ if (!fs.existsSync(rootHtmlPath)) {
 let html = fs.readFileSync(rootHtmlPath, 'utf8');
 
 // Convert absolute paths to relative paths for Pear
-html = html.replace(/href="\/_expo\//g, 'href="./dist-web/_expo/');
-html = html.replace(/src="\/_expo\//g, 'src="./dist-web/_expo/');
-html = html.replace(/href="\/assets\//g, 'href="./dist-web/assets/');
-html = html.replace(/src="\/assets\//g, 'src="./dist-web/assets/');
+html = html.replace(/href="\/_expo\//g, 'href="./_expo/');
+html = html.replace(/src="\/_expo\//g, 'src="./_expo/');
+html = html.replace(/href="\/assets\//g, 'href="./assets/');
+html = html.replace(/src="\/assets\//g, 'src="./assets/');
 
 // Add type="module" to all script tags that don't already have a type attribute
 html = html.replace(/<script(?![^>]*type=)([^>]*)>/g, '<script type="module"$1>');

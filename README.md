@@ -42,6 +42,15 @@ When you run `npm run dev:desktop`, the following happens:
 
 Both windows reflect the same codebase and update simultaneously during development.
 
+### quickstart
+
+This will open up Pear app built from expo web bundle. (no hot reloading)
+
+```
+npm run build:web
+npm run dev:pear
+```
+
 ### Project Tree
 
 
