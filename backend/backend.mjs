@@ -74,13 +74,32 @@ if (typeof BareKit !== 'undefined') {
   console.log("Using BareKit (mobile environment)");
 } else {
   // Desktop environment - use pipe from process
-  ipcOrPipe = process; // or however the pipe is passed in desktop
+  ipcOrPipe = Pear.worker.pipe()
   transportType = 'desktop';
   console.log("Using Pipe (desktop environment)");
 }
 
-const path = join(URL.fileURLToPath(Bare.argv[0]), 'school-notes-app')
+console.log("Bare.argv[0]", Bare.argv[0])
+console.log('direct from config', Pear.config.storage)
+
+let path;
+
+if (transportType === 'desktop') {
+  // It's always undefined on the desktop App.
+  path = join(Pear.config.storage, 'school-notes-app')
+} else {
+  // On mobile, convert from file URL to path
+  const url = URL.fileURLToPath(Bare.argv[0])
+  console.log("url", url)
+  path = join(url, 'school-notes-app')
+}
+
+console.log("Path", path)
+
+
 const TOPIC = Bare.argv[1]
+
+console.log('topic', TOPIC)
 
 console.log("Transport type:", transportType)
 

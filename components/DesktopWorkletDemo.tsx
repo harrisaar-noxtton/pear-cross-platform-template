@@ -37,13 +37,10 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
       return;
     }
 
-    //@ts-ignore
-    const documentDirectory = Pear.config.storage;
-    
-    console.log("document directory desktop: ", documentDirectory);
-
     const pipe = Pear.worker.run("backend/backend.mjs", [
-      documentDirectory, 
+      //  Using here Pear.config.storage will give us wrong path.
+      //   we must use the Pear config on the backend side
+      "undefined", 
       topicKey
     ]);
 
