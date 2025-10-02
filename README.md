@@ -90,6 +90,6 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
 
 1. Pear utilizes Pear.worker.run, which relies on pipe technology. In contrast, react-native-bare-kit uses Worklet and RPC. This means the communication specifications differ slightly, including on the backend side. We’ve implemented some wrappers to unify the logic and create a consistent interface, but there’s room for improvement.
 
-2. Haven’t tested the peer release and staging yet, but it should probably work.
+2. Haven’t tested the Pear release and staging yet, but it should probably work.
 
 3. ... and more
