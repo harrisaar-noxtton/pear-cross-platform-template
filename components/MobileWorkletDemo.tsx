@@ -29,13 +29,18 @@ import ConnectedPairsDisplay from './ConnectedPairsDisplay';
 import JoinButton from './JoinButton';
 import JoiningSwarmLoader from './JoiningSwarmLoader';
 import LeaveButton from './LeaveButton';
+import { DataContent } from './DesktopWorkletDemo';
 
 const topicKey = process.env.EXPO_PUBLIC_TOPIC_KEY;
 
-export default function MobileWorkletDemo(): React.ReactElement {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isSwarmJoined, setIsSwarmJoined] = useState(false);
-  const [peers, setPeers] = useState([]);
+interface Props {}
+
+export default function MobileWorkletDemo(props: Props): React.ReactElement {
+  const {} = props;
+  
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [isSwarmJoined, setIsSwarmJoined] = useState<boolean>(false);
+  const [peersCount, setPeersCount] = useState<number>(0);
   const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
   const rpcRef = useRef<any>(null);
   const workletRef = useRef<any>(null);
@@ -66,9 +71,9 @@ export default function MobileWorkletDemo(): React.ReactElement {
     workletRef.current = worklet;
 
     const rpc = new RPC(IPC, (req) => {
-      const message = JSON.parse(b4a.toString(req.data).toString());
+      const dataContent: DataContent = JSON.parse(b4a.toString(req.data).toString());
 
-      console.log("message", message)
+      console.log("dataContent", dataContent)
 
 
       if (req.command === RPC_SWARM_JOINED) {
@@ -78,7 +83,7 @@ export default function MobileWorkletDemo(): React.ReactElement {
       }
 
       if (req.command === RPC_PEERS_UPDATED) {
-        console.warn('RPC_PEERS_UPDATED: implement');
+        setPeersCount(dataContent?.peersCount || 0);
       }
 
       if (req.command === RPC_RESET) {
@@ -109,7 +114,7 @@ export default function MobileWorkletDemo(): React.ReactElement {
         }
         setIsSwarmJoined(false);
         setIsConnecting(false);
-        setPeers([]);
+        setPeersCount(0);
         rpcRef.current = null;
         setIsDestroyLoading(false);
       }
@@ -143,7 +148,7 @@ export default function MobileWorkletDemo(): React.ReactElement {
 
   return (
     <View style={styles.container}>
-      <ConnectedPairsDisplay peerCount={peers.length} />
+      <ConnectedPairsDisplay peerCount={peersCount} />
       <View style={styles.buttonContainer}>
         {isDestroyLoading && <ActivityIndicator />}
         {!isDestroyLoading && (

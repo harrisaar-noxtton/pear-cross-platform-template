@@ -32,10 +32,12 @@ interface Props {}
 
 export interface DataPayload {
   command: number;
-  data: {
-    message?: string;
-    peersCount?: number
-  }
+  data: DataContent
+}
+
+export interface DataContent {
+  message?: string;
+  peersCount?: number
 }
 
 export default function DesktopWorkletDemo(props: Props): React.ReactElement {
