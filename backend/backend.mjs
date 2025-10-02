@@ -1,7 +1,4 @@
-// backend.mjs (lines 1-132)
-
-// /* global Bare, BareKit */
-
+// backend.mjs
 import b4a from 'b4a'
 import { join } from 'bare-path'
 import RPC from 'bare-rpc'
@@ -21,19 +18,71 @@ import { NotesCoreService } from './NotesCoreService.mjs'
 
 console.log("backend.mjs loading")
 
-const { IPC } = BareKit;
-const ipcOrPipe = IPC;  
-console.log("Using BareKit")
+// Transport Factory
+function createTransport(type, connection) {
+  if (type === 'mobile') {
+    return new BareRPCTransport(connection);
+  }
+  return new PipeTransport(connection);
+}
+
+class PipeTransport {
+  constructor(pipe) {
+    this.pipe = pipe;
+  }
+
+  request(command) {
+    return new PipeRequest(this.pipe, command);
+  }
+}
+
+class BareRPCTransport {
+  constructor(ipc) {
+    this.rpc = new RPC(ipc, this.handleRequest.bind(this));
+  }
+
+  request(command) {
+    return this.rpc.request(command);
+  }
+
+  handleRequest(req, error) {
+    return handleTransportRequest(req, error);
+  }
+}
+
+class PipeRequest {
+  constructor(pipe, command) {
+    this.pipe = pipe;
+    this.command = command;
+  }
+
+  send(data) {
+    const message = { command: this.command, data };
+    this.pipe.write(JSON.stringify(message));
+  }
+}
+
+// Detect environment and set up transport accordingly
+let ipcOrPipe;
+let transportType;
+
+// Check if BareKit is available (mobile environment)
+if (typeof BareKit !== 'undefined') {
+  const { IPC } = BareKit;
+  ipcOrPipe = IPC;
+  transportType = 'mobile';
+  console.log("Using BareKit (mobile environment)");
+} else {
+  // Desktop environment - use pipe from process
+  ipcOrPipe = process; // or however the pipe is passed in desktop
+  transportType = 'desktop';
+  console.log("Using Pipe (desktop environment)");
+}
 
 const path = join(URL.fileURLToPath(Bare.argv[0]), 'school-notes-app')
-
-console.log("trying to join", path)
-
-// Static topic key per app instance to avoid regeneration.
-//  (no need for QR codes or sharing manually.)
 const TOPIC = Bare.argv[1]
 
-console.log("TOPIC", TOPIC)
+console.log("Transport type:", transportType)
 
 Bare.on('teardown', async () => {
   console.log('teardown')
@@ -42,16 +91,15 @@ Bare.on('teardown', async () => {
 
 const networkService = new NetworkService()
 const notesCoreService = new NotesCoreService(path)
+let transport;
 
 async function destroyConnections() {
   await networkService.destroy()
   await notesCoreService.close()
 }
 
-let rpc
-
 function sendNotesToUI(notes) {
-  const req = rpc.request(RPC_NOTES_RECEIVED)
+  const req = transport.request(RPC_NOTES_RECEIVED)
   req.send(JSON.stringify(notes))
 }
 
@@ -61,7 +109,7 @@ notesCoreService.onNotesUpdated(async () => {
 })
 
 networkService.onPeerUpdate(() => {
-  const req = rpc.request(RPC_PEERS_UPDATED)
+  const req = transport.request(RPC_PEERS_UPDATED)
   req.send(JSON.stringify(networkService.getPeers()))
 })
 
@@ -83,24 +131,18 @@ networkService.onPeerMessage(async (payload, peerId) => {
   }
 })
 
-rpc = new RPC(ipcOrPipe, async (req, error) => {
+async function handleTransportRequest(req, error) {
   if (req.command === RPC_JOIN_SWARM) {
     await notesCoreService.initialize()
-
     await networkService.joinSwarm(b4a.from(TOPIC, 'hex'))
-
-    rpc.request(RPC_SWARM_JOINED).send()
-
+    transport.request(RPC_SWARM_JOINED).send()
     const messages = await notesCoreService.getNotes()
     sendNotesToUI(messages)
   }
 
   if (req.command === RPC_APPEND_NOTE) {
-    const data =
-      req.data && req.data.toString ? req.data.toString() : String(req.data)
-
+    const data = req.data && req.data.toString ? req.data.toString() : String(req.data)
     await notesCoreService.appendNote(data)
-
     req.reply('appended')
   }
 
@@ -109,18 +151,30 @@ rpc = new RPC(ipcOrPipe, async (req, error) => {
     req.reply('requested')
   }
 
-  // For debuging of connections.
   if (req.command === RPC_CHECK_CONNECTION) {
     console.log('checking connection')
     const info = networkService.getConnectionInfo()
     req.reply(JSON.stringify(info))
   }
 
-  // TODO: Fix swarm.peers process leaks in Android builds
-  //   However, this does work for disconnecting active connections.
   if (req.command === RPC_DESTROY) {
     console.log('destroying')
     await destroyConnections()
     req.reply('Destroyed!')
   }
-})
+}
+
+// Initialize transport
+transport = createTransport(transportType, ipcOrPipe);
+
+// For pipe transport, set up data handler
+if (transportType === 'desktop') {
+  ipcOrPipe.on('data', async (data) => {
+    try {
+      const message = JSON.parse(data.toString());
+      await handleTransportRequest(message, null);
+    } catch (error) {
+      console.error('Pipe message error:', error);
+    }
+  });
+}

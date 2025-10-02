@@ -1,4 +1,3 @@
-// DesktopWorkletDemo.tsx
 import b4a from 'b4a';
 import React, { useRef, useState } from 'react';
 import {
@@ -16,11 +15,15 @@ import JoiningSwarmLoader from './JoiningSwarmLoader';
 
 const topicKey = process.env.EXPO_PUBLIC_TOPIC_KEY;
 
-export default function DesktopWorkletDemo(): React.ReactElement {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isSwarmJoined, setIsSwarmJoined] = useState(false);
-  const [peers, setPeers] = useState([]);
-  const rpcRef = useRef<any>(null);
+interface Props {}
+
+export default function DesktopWorkletDemo(props: Props): React.ReactElement {
+  const {} = props;
+  
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [isSwarmJoined, setIsSwarmJoined] = useState<boolean>(false);
+  const [peers, setPeers] = useState<any[]>([]);
+  const pipeRef = useRef<any>(null);
   const workerRef = useRef<any>(null);
 
   const handleJoinNetwork = async (): Promise<void> => {
@@ -39,28 +42,49 @@ export default function DesktopWorkletDemo(): React.ReactElement {
     
     console.log("document directory desktop: ", documentDirectory);
 
-    const pipe = Pear.worker.run("desktop-backend/app.bundle.mjs", [documentDirectory,topicKey]);
+    const pipe = Pear.worker.run("backend/backend.mjs", [
+      documentDirectory, 
+      topicKey
+    ]);
+
+    pipeRef.current = pipe;
 
     if (pipe && typeof pipe.on === 'function') {
       pipe.on('error', (error) => {
         console.error('[Desktop Platform] Worker error:', error);
+        setIsConnecting(false);
       });
 
       pipe.on('close', (data) => {
         console.log('[Desktop Platform] Worker closed');
+        setIsSwarmJoined(false);
+        setIsConnecting(false);
       });
     }
 
     pipe.on('data', (data) => {
-      const str = Buffer.from(data).toString();
-      const lines = str.split('\n');
-      for (let msg of lines) {
-        msg = msg.trim();
-        if (!msg) continue;
+      try {
+        const message = JSON.parse(Buffer.from(data).toString());
+        
+        if (message.command === RPC_SWARM_JOINED) {
+          console.log('swarm joined');
+          setIsConnecting(false);
+          setIsSwarmJoined(true);
+        }
 
-        console.log("msg", msg);
+        if (message.command === RPC_PEERS_UPDATED) {
+          const peers = JSON.parse(message.data);
+          console.log('peers updated', peers);
+          setPeers(peers);
+        }
+      } catch (error) {
+        console.error('Error parsing pipe message:', error);
       }
     });
+
+    // Send join swarm command
+    const joinMessage = { command: RPC_JOIN_SWARM };
+    pipe.write(JSON.stringify(joinMessage));
   };
 
   if (isConnecting) {
