@@ -1,6 +1,6 @@
 {
   "name": "pear-cross-platform-template",
-  "main": "dist-web/index.html",
+  "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
     "build-worker": "npx bare-pack --target ios --target android --linked --out desktop-backend/app.bundle.mjs backend/backend.mjs",
@@ -9,13 +9,9 @@
     "set-main-pear": "node scripts/change-package-main-value.js 'dist-web/index.html'",
     "fix-paths": "node scripts/fix-expo-build-paths.js",
     "build:web": "npm run set-main-expo && expo export --platform web --output-dir dist-web && npm run fix-paths",
-    "open:pear": "npm run build:web && npm run dev:pear",
-    "web": "npm run set-main-expo && expo start --web",
-    "start": "expo start",
-    "android": "expo start --android",
-    "android-native": "npm run build-pear-end && npm run set-main-expo && expo run:android",
-    "ios": "expo start --ios",
-    "dev:pear": "npm run set-main-pear && pear run --dev ."
+    "desktop": "npm run build:web && npm run set-main-pear && pear run --dev .",
+    "android": "npm run build-pear-end && npm run set-main-expo && expo run:android",
+    "web": "npm run set-main-expo && expo start --web"
   },
   "pear": {
     "name": "pearcrossplatformtemplate",
@@ -35,8 +31,7 @@
       ]
     },
     "links": [
-      "https://*",
-      "http://localhost:*"
+      "https://*"
     ]
   },
   "dependencies": {
@@ -69,6 +64,8 @@
   "devDependencies": {
     "@types/b4a": "^1.6.5",
     "@types/react": "~19.1.0",
+    "@types/react-dom": "~19.1.0",
+    "@types/react-native": "^0.73.0",
     "bare-pack": "^1.4.6",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",

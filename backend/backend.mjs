@@ -1,3 +1,5 @@
+// backend.mjs (lines 1-132)
+
 // /* global Bare, BareKit */
 
 import b4a from 'b4a'
@@ -19,16 +21,9 @@ import { NotesCoreService } from './NotesCoreService.mjs'
 
 console.log("backend.mjs loading")
 
-let ipcOrPipe;
-if (typeof Pear !== 'undefined' && Pear.worker) {
-  ipcOrPipe = Pear.worker.pipe();  // Desktop (Pear worker)
-  console.log("it was Pear, create Desktop ")
-} else {
-  const { IPC } = BareKit;
-  ipcOrPipe = IPC;  // Mobile (Worklet) or pure Bare
-  console.log("it was Bare, creat BareKit")
-}
-
+const { IPC } = BareKit;
+const ipcOrPipe = IPC;  
+console.log("Using BareKit")
 
 const path = join(URL.fileURLToPath(Bare.argv[0]), 'school-notes-app')
 

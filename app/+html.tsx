@@ -10,6 +10,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         
+        
         {/* Add CSP for Electron */}
         <meta 
           httpEquiv="Content-Security-Policy" 
@@ -27,7 +28,7 @@ export default function Root({ children }: PropsWithChildren) {
           crossOrigin="anonymous"
         />
       </head>
-      <body>{children}</body>
+      <body>{children} HARRI</body>
     </html>
   );
 }

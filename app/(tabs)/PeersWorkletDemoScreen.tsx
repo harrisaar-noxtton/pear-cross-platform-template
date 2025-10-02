@@ -1,15 +1,17 @@
-// PeersWorkletDemoScreen.tsx
+// app/(tabs)/PeersWorkletDemoScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, View, Text } from 'react-native';
+import { PRIMARY_BLACK_COLOR, PRIMARY_GREEN_COLOR, WHITE_COLOR, PRIMARY_TEXT_GRAY } from '@/constants/Colors';
 
 import DesktopWorkletDemo from '@/components/DesktopWorkletDemo';
-import { Text, View } from '@/components/Themed';
 
+interface Props {}
 
-export default function PeersWorkletDemoScreen() {
+export default function PeersWorkletDemoScreen(props: Props): React.ReactElement {
+  const {} = props;
   const [MobileWorkletDemo, setMobileWorkletDemo] = useState<React.ComponentType | null>(null);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (Platform.OS !== 'web') {
       // Only import on mobile platforms
       import('@/components/MobileWorkletDemo')
@@ -26,14 +28,11 @@ export default function PeersWorkletDemoScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>PeersWorkletDemoScreen v41</Text>
-      {Platform.OS !== 'web' && MobileWorkletDemo && <MobileWorkletDemo />}
-      {Platform.OS === 'web' && <DesktopWorkletDemo />}
-      <View 
-        style={styles.separator} 
-        lightColor="#eee"   
-        darkColor="rgba(255,255,255,0.1)" 
-      />
+      
+      <View style={styles.demoContainer}>
+        {Platform.OS !== 'web' && MobileWorkletDemo && <MobileWorkletDemo />}
+        {Platform.OS === 'web' && <DesktopWorkletDemo />}
+      </View>
     </View>
   );
 }
@@ -41,22 +40,27 @@ export default function PeersWorkletDemoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: PRIMARY_BLACK_COLOR,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  headerContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  pearIcon: {
+    fontSize: 40,
+    marginBottom: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
-  },
-  webMessage: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    marginVertical: 20,
+    color: PRIMARY_GREEN_COLOR,
     textAlign: 'center',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  demoContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
