@@ -1,13 +1,16 @@
-// backend.mjs
 import b4a from 'b4a'
 import {
   RPC_APPEND_NOTE,
+  RPC_APPEND_NOTE_SUCCESS,
   RPC_CHECK_CONNECTION,
+  RPC_CHECK_CONNECTION_SUCCESS,
   RPC_DESTROY,
+  RPC_DESTROY_SUCCESS,
   RPC_JOIN_SWARM,
   RPC_NOTES_RECEIVED,
   RPC_PEERS_UPDATED,
   RPC_REQUEST_PEER_NOTES,
+  RPC_REQUEST_PEER_NOTES_SUCCESS,
   RPC_SWARM_JOINED
 } from '../rpc-commands.mjs'
 import { NetworkService } from './NetworkService.mjs'
@@ -36,6 +39,7 @@ if (transportType === 'mobile') {
 console.log("Path", path)
 console.log("Transport type:", transportType)
 
+// TODO: this should not be here
 Bare.on('teardown', async () => {
   console.log('teardown')
   await destroyConnections()
@@ -107,44 +111,32 @@ async function handleTransportRequest(req, error) {
     console.log('swarm join event sent')
 
     const messages = await notesCoreService.getNotes()
+    
     sendNotesToUI(messages)
   }
 
   if (req.command === RPC_APPEND_NOTE) {
     const data = req.data && req.data.toString ? req.data.toString() : String(req.data)
     await notesCoreService.appendNote(data)
-    req.reply('appended')
+    transport.request(RPC_APPEND_NOTE_SUCCESS).send('appended')
   }
 
   if (req.command === RPC_REQUEST_PEER_NOTES) {
     networkService.requestPeerNotes()
-    req.reply('requested')
+    transport.request(RPC_REQUEST_PEER_NOTES_SUCCESS).send('requested')
   }
 
   if (req.command === RPC_CHECK_CONNECTION) {
     console.log('checking connection')
     const info = networkService.getConnectionInfo()
-    req.reply(JSON.stringify(info))
+    transport.request(RPC_CHECK_CONNECTION_SUCCESS).send(JSON.stringify(info))
   }
 
   if (req.command === RPC_DESTROY) {
     console.log('destroying')
     await destroyConnections()
-    req.reply('Destroyed!')
+    transport.request(RPC_DESTROY_SUCCESS).send('Destroyed!')
   }
 }
 
-// Initialize transport
-transport = createTransport(transportType, ipcOrPipe);
-
-// For pipe transport, set up data handler
-if (transportType === 'desktop') {
-  ipcOrPipe.on('data', async (data) => {
-    try {
-      const message = JSON.parse(data.toString());
-      await handleTransportRequest(message, null);
-    } catch (error) {
-      console.error('Pipe message error:', error);
-    }
-  });
-}
+transport = createTransport(transportType, ipcOrPipe, handleTransportRequest);

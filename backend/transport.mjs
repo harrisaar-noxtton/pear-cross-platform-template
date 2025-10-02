@@ -54,16 +54,31 @@ function getRuntimeStoragePath() {
 }
 
 // Transport Factory
-function createTransport(type, connection) {
+function createTransport(type, connection, requestHandler) {
   if (type === 'mobile') {
-    return new BareRPCTransport(connection);
+    return new BareRPCTransport(connection, requestHandler);
   }
-  return new PipeTransport(connection);
+  return new PipeTransport(connection, requestHandler);
 }
 
 class PipeTransport {
-  constructor(pipe) {
+  constructor(pipe, requestHandler) {
     this.pipe = pipe;
+    this.requestHandler = requestHandler;
+    this.setupPipeHandling();
+  }
+
+  setupPipeHandling() {
+    this.pipe.on('data', async (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        if (this.requestHandler) {
+          await this.requestHandler(message, null);
+        }
+      } catch (error) {
+        console.error('Pipe message error:', error);
+      }
+    });
   }
 
   request(command) {
@@ -72,7 +87,8 @@ class PipeTransport {
 }
 
 class BareRPCTransport {
-  constructor(ipc) {
+  constructor(ipc, requestHandler) {
+    this.requestHandler = requestHandler;
     this.rpc = new RPC(ipc, this.handleRequest.bind(this));
   }
 
@@ -81,7 +97,9 @@ class BareRPCTransport {
   }
 
   handleRequest(req, error) {
-    return handleTransportRequest(req, error);
+    if (this.requestHandler) {
+      return this.requestHandler(req, error);
+    }
   }
 }
 

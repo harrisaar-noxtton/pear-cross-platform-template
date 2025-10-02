@@ -1,7 +1,6 @@
 // LeaveButton.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 const PRIMARY_RED_COLOR = '#FF6B6B';
 
@@ -16,7 +15,6 @@ const LeaveButton = (props: Props): React.ReactElement => {
   return (
     <TouchableOpacity style={styles.destroyButton} onPress={onPress}>
       <View style={styles.leaveButtonContent}>
-        {!isLoading && <Ionicons name="exit" size={18} color={PRIMARY_RED_COLOR} />}
         <Text style={styles.destroyButtonText}>
           {isLoading ? 'Leaving...' : 'Leave'}
         </Text>

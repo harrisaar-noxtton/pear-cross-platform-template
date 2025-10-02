@@ -13,7 +13,16 @@ import {
   RPC_JOIN_SWARM,
   RPC_PEERS_UPDATED,
   RPC_SWARM_JOINED,
-  RPC_DESTROY
+  RPC_DESTROY,
+  RPC_RESET,
+  RPC_APPEND_NOTE,
+  RPC_APPEND_NOTE_SUCCESS,
+  RPC_NOTES_RECEIVED,
+  RPC_REQUEST_PEER_NOTES,
+  RPC_REQUEST_PEER_NOTES_SUCCESS,
+  RPC_CHECK_CONNECTION,
+  RPC_CHECK_CONNECTION_SUCCESS,
+  RPC_DESTROY_SUCCESS
 } from '../rpc-commands.mjs';
 import bundle from './app.bundle.mjs';
 import ConnectedPairsDisplay from './ConnectedPairsDisplay';
@@ -74,6 +83,39 @@ export default function MobileWorkletDemo(): React.ReactElement {
         console.log('peers updated', peers);
         setPeers(peers);
       }
+
+      if (req.command === RPC_RESET) {
+        console.warn('RPC_RESET: implement');
+      }
+
+      if (req.command === RPC_APPEND_NOTE_SUCCESS) {
+        console.warn('RPC_APPEND_NOTE_SUCCESS: implement');
+      }
+
+      if (req.command === RPC_NOTES_RECEIVED) {
+        console.warn('RPC_NOTES_RECEIVED: implement');
+      }
+
+      if (req.command === RPC_REQUEST_PEER_NOTES_SUCCESS) {
+        console.warn('RPC_REQUEST_PEER_NOTES_SUCCESS: implement');
+      }
+
+      if (req.command === RPC_CHECK_CONNECTION_SUCCESS) {
+        console.warn('RPC_CHECK_CONNECTION_SUCCESS: implement');
+      }
+
+      if (req.command === RPC_DESTROY_SUCCESS) {
+        console.log('RPC_DESTROY_SUCCESS: cleaning up UI state');
+        if (workletRef.current) {
+          workletRef.current.terminate();
+          workletRef.current = null;
+        }
+        setIsSwarmJoined(false);
+        setIsConnecting(false);
+        setPeers([]);
+        rpcRef.current = null;
+        setIsDestroyLoading(false);
+      }
     });
 
     rpcRef.current = rpc;
@@ -87,20 +129,6 @@ export default function MobileWorkletDemo(): React.ReactElement {
       setIsDestroyLoading(true);
       const req = rpcRef.current.request(RPC_DESTROY);
       req.send();
-
-      const replayBuffer = await req.reply();
-
-      console.log(b4a.toString(replayBuffer));
-
-      if (workletRef.current) {
-        workletRef.current.terminate();
-        workletRef.current = null;
-      }
-
-      setIsSwarmJoined(false);
-      setIsConnecting(false);
-      rpcRef.current = null;
-      setIsDestroyLoading(false);
     }
   };
 
