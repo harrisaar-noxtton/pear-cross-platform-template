@@ -6,7 +6,6 @@ import React, { useRef, useState } from 'react';
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
   ActivityIndicator
 } from 'react-native';
 import { Worklet } from 'react-native-bare-kit';
@@ -21,7 +20,6 @@ import ConnectedPairsDisplay from './ConnectedPairsDisplay';
 import JoinButton from './JoinButton';
 import JoiningSwarmLoader from './JoiningSwarmLoader';
 import LeaveButton from './LeaveButton';
-import { PRIMARY_RED_COLOR } from '@/constants/Colors';
 
 const topicKey = process.env.EXPO_PUBLIC_TOPIC_KEY;
 
@@ -124,12 +122,10 @@ export default function MobileWorkletDemo(): React.ReactElement {
       <View style={styles.buttonContainer}>
         {isDestroyLoading && <ActivityIndicator />}
         {!isDestroyLoading && (
-          <TouchableOpacity
-            style={styles.destroyButton}
+          <LeaveButton 
+            isLoading={isDestroyLoading} 
             onPress={handleDestroyConnection}
-          >
-            <LeaveButton isLoading={isDestroyLoading} />
-          </TouchableOpacity>
+          />
         )}
       </View>
     </View>
@@ -146,11 +142,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
     alignItems: 'center',
-  },
-  destroyButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: PRIMARY_RED_COLOR,
-    borderRadius: 5,
   },
 });

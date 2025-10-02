@@ -1,8 +1,5 @@
 // backend.mjs
 import b4a from 'b4a'
-import { join } from 'bare-path'
-import RPC from 'bare-rpc'
-import URL from 'bare-url'
 import {
   RPC_APPEND_NOTE,
   RPC_CHECK_CONNECTION,
@@ -15,101 +12,28 @@ import {
 } from '../rpc-commands.mjs'
 import { NetworkService } from './NetworkService.mjs'
 import { NotesCoreService } from './NotesCoreService.mjs'
+import { 
+  createTransport,
+  getIpcOrPipe,
+  getTransportType,
+  getTopic,
+  getRuntimeStoragePath
+} from './transport.mjs'
 
 console.log("backend.mjs loading")
 
-// Transport Factory
-function createTransport(type, connection) {
-  if (type === 'mobile') {
-    return new BareRPCTransport(connection);
-  }
-  return new PipeTransport(connection);
-}
+const ipcOrPipe = getIpcOrPipe();
+const transportType = getTransportType();
+const TOPIC = getTopic();
+const path = getRuntimeStoragePath();
 
-class PipeTransport {
-  constructor(pipe) {
-    this.pipe = pipe;
-  }
-
-  request(command) {
-    return new PipeRequest(this.pipe, command);
-  }
-}
-
-class BareRPCTransport {
-  constructor(ipc) {
-    this.rpc = new RPC(ipc, this.handleRequest.bind(this));
-  }
-
-  request(command) {
-    return this.rpc.request(command);
-  }
-
-  handleRequest(req, error) {
-    return handleTransportRequest(req, error);
-  }
-}
-
-class PipeRequest {
-  constructor(pipe, command) {
-    this.pipe = pipe;
-    this.command = command;
-  }
-
-  send(data) {
-    const message = { command: this.command, data };
-
-    console.log("message to send from pipe", message)
-
-    this.pipe.write(JSON.stringify(message));
-  }
-}
-
-// Detect environment and set up transport accordingly
-let ipcOrPipe;
-let transportType;
-
-// Check if BareKit is available (mobile environment)
-if (typeof BareKit !== 'undefined') {
-  const { IPC } = BareKit;
-  ipcOrPipe = IPC;
-  transportType = 'mobile';
+if (transportType === 'mobile') {
   console.log("Using BareKit (mobile environment)");
 } else {
-  // Desktop environment - use pipe from process
-  ipcOrPipe = Pear.worker.pipe()
-  transportType = 'desktop';
   console.log("Using Pipe (desktop environment)");
 }
 
-let TOPIC;
-let STORAGE_PATH;
-
-let path;
-
-if (transportType === 'desktop') {
-
-  // For some reason pipe has arguments in reverse.
-  const pipeArgs = Bare.argv.slice().reverse()
-
-  TOPIC = pipeArgs[0]
-  STORAGE_PATH = pipeArgs[1]
-
-  console.log(pipeArgs)
-
-  path = join(STORAGE_PATH, 'school-notes-app')
-} else {
-  // On mobile, convert from file URL to path
-  const url = URL.fileURLToPath(Bare.argv[0])
-  console.log("url", url)
-  path = join(url, 'school-notes-app')
-}
-
 console.log("Path", path)
-
-
-
-
 console.log("Transport type:", transportType)
 
 Bare.on('teardown', async () => {

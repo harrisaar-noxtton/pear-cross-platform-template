@@ -1,17 +1,21 @@
+// DesktopWorkletDemo.tsx
 import b4a from 'b4a';
 import React, { useRef, useState } from 'react';
 import {
   StyleSheet,
-  View
+  View,
+  ActivityIndicator
 } from 'react-native';
 import {
   RPC_JOIN_SWARM,
   RPC_PEERS_UPDATED,
-  RPC_SWARM_JOINED
+  RPC_SWARM_JOINED,
+  RPC_DESTROY
 } from '../rpc-commands.mjs';
 import ConnectedPairsDisplay from './ConnectedPairsDisplay';
 import JoinButton from './JoinButton';
 import JoiningSwarmLoader from './JoiningSwarmLoader';
+import LeaveButton from './LeaveButton';
 
 const topicKey = process.env.EXPO_PUBLIC_TOPIC_KEY;
 
@@ -23,6 +27,7 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [isSwarmJoined, setIsSwarmJoined] = useState<boolean>(false);
   const [peers, setPeers] = useState<any[]>([]);
+  const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
   const pipeRef = useRef<any>(null);
   const workerRef = useRef<any>(null);
 
@@ -45,6 +50,7 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
     ]);
 
     pipeRef.current = pipe;
+    workerRef.current = pipe;
 
     if (pipe && typeof pipe.on === 'function') {
       pipe.on('error', (error) => {
@@ -84,6 +90,25 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
     pipe.write(JSON.stringify(joinMessage));
   };
 
+  const handleDestroyConnection = async (): Promise<void> => {
+    if (pipeRef.current) {
+      setIsDestroyLoading(true);
+      
+      const destroyMessage = { command: RPC_DESTROY };
+      pipeRef.current.write(JSON.stringify(destroyMessage));
+
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+
+      setIsSwarmJoined(false);
+      setIsConnecting(false);
+      pipeRef.current = null;
+      setIsDestroyLoading(false);
+    }
+  };
+
   if (isConnecting) {
     return <JoiningSwarmLoader />;
   }
@@ -99,6 +124,15 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
   return (
     <View style={styles.container}>
       <ConnectedPairsDisplay peerCount={peers.length} />
+      <View style={styles.buttonContainer}>
+        {isDestroyLoading && <ActivityIndicator />}
+        {!isDestroyLoading && (
+          <LeaveButton 
+            isLoading={isDestroyLoading} 
+            onPress={handleDestroyConnection}
+          />
+        )}
+      </View>
     </View>
   );
 }
@@ -109,5 +143,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  }
+  },
+  buttonContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
 });
