@@ -58,6 +58,9 @@ class PipeRequest {
 
   send(data) {
     const message = { command: this.command, data };
+
+    console.log("message to send from pipe", message)
+
     this.pipe.write(JSON.stringify(message));
   }
 }
@@ -79,14 +82,22 @@ if (typeof BareKit !== 'undefined') {
   console.log("Using Pipe (desktop environment)");
 }
 
-console.log("Bare.argv[0]", Bare.argv[0])
-console.log('direct from config', Pear.config.storage)
+let TOPIC;
+let STORAGE_PATH;
 
 let path;
 
 if (transportType === 'desktop') {
-  // It's always undefined on the desktop App.
-  path = join(Pear.config.storage, 'school-notes-app')
+
+  // For some reason pipe has arguments in reverse.
+  const pipeArgs = Bare.argv.slice().reverse()
+
+  TOPIC = pipeArgs[0]
+  STORAGE_PATH = pipeArgs[1]
+
+  console.log(pipeArgs)
+
+  path = join(STORAGE_PATH, 'school-notes-app')
 } else {
   // On mobile, convert from file URL to path
   const url = URL.fileURLToPath(Bare.argv[0])
@@ -97,9 +108,7 @@ if (transportType === 'desktop') {
 console.log("Path", path)
 
 
-const TOPIC = Bare.argv[1]
 
-console.log('topic', TOPIC)
 
 console.log("Transport type:", transportType)
 
@@ -151,10 +160,28 @@ networkService.onPeerMessage(async (payload, peerId) => {
 })
 
 async function handleTransportRequest(req, error) {
+  console.log("handleTransportRequest", req.command)
+
   if (req.command === RPC_JOIN_SWARM) {
+
+    console.log("handling join swarm request")
+
     await notesCoreService.initialize()
-    await networkService.joinSwarm(b4a.from(TOPIC, 'hex'))
+
+    console.log("notes initalized topic is:", TOPIC)
+
+    const swarmId = b4a.from(TOPIC, 'hex')
+
+    console.log('swarm id', swarmId)
+
+    await networkService.joinSwarm(swarmId)
+
+    console.log("network joined")
+
     transport.request(RPC_SWARM_JOINED).send()
+
+    console.log('swarm join event sent')
+
     const messages = await notesCoreService.getNotes()
     sendNotesToUI(messages)
   }

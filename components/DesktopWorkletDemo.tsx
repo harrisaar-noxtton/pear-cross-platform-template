@@ -40,7 +40,7 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
     const pipe = Pear.worker.run("backend/backend.mjs", [
       //  Using here Pear.config.storage will give us wrong path.
       //   we must use the Pear config on the backend side
-      "undefined", 
+      Pear.config.storage, 
       topicKey
     ]);
 
