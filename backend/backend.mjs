@@ -56,7 +56,8 @@ async function destroyConnections() {
 
 function sendNotesToUI(notes) {
   const req = transport.request(RPC_NOTES_RECEIVED)
-  req.send(JSON.stringify(notes))
+  console.log('send notes', notes)
+  req.send(JSON.stringify(notes || []))
 }
 
 notesCoreService.onNotesUpdated(async () => {
@@ -66,7 +67,8 @@ notesCoreService.onNotesUpdated(async () => {
 
 networkService.onPeerUpdate(() => {
   const req = transport.request(RPC_PEERS_UPDATED)
-  req.send(JSON.stringify(networkService.getPeers()))
+  console.log("send peers info","get peers",)
+  req.send(JSON.stringify({message: "peers updated", peersCount: networkService.getPeers().length}))
 })
 
 networkService.onPeerMessage(async (payload, peerId) => {
@@ -104,13 +106,15 @@ async function handleTransportRequest(req, error) {
 
     await networkService.joinSwarm(swarmId)
 
-    console.log("network joined")
+    console.log("network joined send swarm joined")
 
-    transport.request(RPC_SWARM_JOINED).send()
+    transport.request(RPC_SWARM_JOINED).send(JSON.stringify({message: "swarm joined"}))
 
     console.log('swarm join event sent')
 
     const messages = await notesCoreService.getNotes()
+
+    console.log("messages send", messages)
     
     sendNotesToUI(messages)
   }
@@ -118,24 +122,29 @@ async function handleTransportRequest(req, error) {
   if (req.command === RPC_APPEND_NOTE) {
     const data = req.data && req.data.toString ? req.data.toString() : String(req.data)
     await notesCoreService.appendNote(data)
-    transport.request(RPC_APPEND_NOTE_SUCCESS).send('appended')
+    console.log('send appnede')
+    transport.request(RPC_APPEND_NOTE_SUCCESS).send(JSON.stringify({message: "notes appended"}))
   }
 
   if (req.command === RPC_REQUEST_PEER_NOTES) {
     networkService.requestPeerNotes()
-    transport.request(RPC_REQUEST_PEER_NOTES_SUCCESS).send('requested')
+    console.log('send requested')
+    transport.request(RPC_REQUEST_PEER_NOTES_SUCCESS).send(JSON.stringify({message: "peer notes requested"}))
   }
 
   if (req.command === RPC_CHECK_CONNECTION) {
     console.log('checking connection')
     const info = networkService.getConnectionInfo()
-    transport.request(RPC_CHECK_CONNECTION_SUCCESS).send(JSON.stringify(info))
+    console.log("send connection")
+    transport.request(RPC_CHECK_CONNECTION_SUCCESS).send(JSON.stringify({info}))
+
   }
 
   if (req.command === RPC_DESTROY) {
     console.log('destroying')
     await destroyConnections()
-    transport.request(RPC_DESTROY_SUCCESS).send('Destroyed!')
+    console.log("send destroy")
+    transport.request(RPC_DESTROY_SUCCESS).send(JSON.stringify({message: "rpc destroyed success"}))
   }
 }
 

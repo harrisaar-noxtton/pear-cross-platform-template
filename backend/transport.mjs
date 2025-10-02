@@ -109,8 +109,9 @@ class PipeRequest {
     this.command = command;
   }
 
-  send(data) {
-    const message = { command: this.command, data };
+  send(dataStringified) {
+    
+    const message = { command: this.command, data: JSON.parse(dataStringified) };
 
     console.log("message to send from pipe", message)
 
@@ -120,9 +121,6 @@ class PipeRequest {
 
 export { 
   createTransport, 
-  PipeTransport, 
-  BareRPCTransport, 
-  PipeRequest,
   getIpcOrPipe,
   getTransportType,
   getTopic,

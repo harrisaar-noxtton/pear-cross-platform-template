@@ -30,12 +30,20 @@ const topicKey = process.env.EXPO_PUBLIC_TOPIC_KEY;
 
 interface Props {}
 
+export interface DataPayload {
+  command: number;
+  data: {
+    message?: string;
+    peersCount?: number
+  }
+}
+
 export default function DesktopWorkletDemo(props: Props): React.ReactElement {
   const {} = props;
   
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [isSwarmJoined, setIsSwarmJoined] = useState<boolean>(false);
-  const [peers, setPeers] = useState<any[]>([]);
+  const [peersCount, setPeersCount] = useState<number>(0);
   const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
   const pipeRef = useRef<any>(null);
 
@@ -73,44 +81,43 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
     }
 
     pipe.on('data', (data) => {
-      try {
-        const message = JSON.parse(Buffer.from(data).toString());
 
-        console.log("message", message)
+      try {
+        const dataPayload: DataPayload = JSON.parse(Buffer.from(data).toString());
+
+        console.log("dataPayload", dataPayload)
         
-        if (message.command === RPC_SWARM_JOINED) {
+        if (dataPayload.command === RPC_SWARM_JOINED) {
           console.log('swarm joined');
           setIsConnecting(false);
           setIsSwarmJoined(true);
         }
 
-        if (message.command === RPC_PEERS_UPDATED) {
-          const peers = JSON.parse(message.data);
-          console.log('peers updated', peers);
-          setPeers(peers);
+        if (dataPayload.command === RPC_PEERS_UPDATED) {
+          setPeersCount(dataPayload.data?.peersCount || 0);
         }
 
-        if (message.command === RPC_RESET) {
+        if (dataPayload.command === RPC_RESET) {
           console.warn('RPC_RESET: implement');
         }
 
-        if (message.command === RPC_APPEND_NOTE_SUCCESS) {
+        if (dataPayload.command === RPC_APPEND_NOTE_SUCCESS) {
           console.warn('RPC_APPEND_NOTE_SUCCESS: implement');
         }
 
-        if (message.command === RPC_NOTES_RECEIVED) {
+        if (dataPayload.command === RPC_NOTES_RECEIVED) {
           console.warn('RPC_NOTES_RECEIVED: implement');
         }
 
-        if (message.command === RPC_REQUEST_PEER_NOTES_SUCCESS) {
+        if (dataPayload.command === RPC_REQUEST_PEER_NOTES_SUCCESS) {
           console.warn('RPC_REQUEST_PEER_NOTES_SUCCESS: implement');
         }
 
-        if (message.command === RPC_CHECK_CONNECTION_SUCCESS) {
+        if (dataPayload.command === RPC_CHECK_CONNECTION_SUCCESS) {
           console.warn('RPC_CHECK_CONNECTION_SUCCESS: implement');
         }
 
-        if (message.command === RPC_DESTROY_SUCCESS) {
+        if (dataPayload.command === RPC_DESTROY_SUCCESS) {
           console.log('RPC_DESTROY_SUCCESS: cleaning up UI state');
           if (pipeRef.current) {
             pipeRef.current.destroy()
@@ -118,12 +125,13 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
           }
           setIsSwarmJoined(false);
           setIsConnecting(false);
-          setPeers([]);
+          setPeersCount(0);
           pipeRef.current = null;
           setIsDestroyLoading(false);
         }
       } catch (error) {
         console.error('Error parsing pipe message:', error);
+        console.log("ERROR: data", data,"buffer from:", Buffer.from(data),"to string:", Buffer.from(data).toString())
       }
     });
 
@@ -155,7 +163,7 @@ export default function DesktopWorkletDemo(props: Props): React.ReactElement {
 
   return (
     <View style={styles.container}>
-      <ConnectedPairsDisplay peerCount={peers.length} />
+      <ConnectedPairsDisplay peerCount={peersCount} />
       <View style={styles.buttonContainer}>
         {isDestroyLoading && <ActivityIndicator />}
         {!isDestroyLoading && (

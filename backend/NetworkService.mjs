@@ -8,6 +8,8 @@ export class NetworkService {
     this.onPeerMessageCallback = null
     this.peers = new Map()
     this.connections = new Map()
+    this.lastNotifyTime = 0
+    this.notifyTimeout = null
     this.setupSwarmEvents()
   }
 
@@ -45,17 +47,38 @@ export class NetworkService {
       peer.on('close', () => {
         this.peers.delete(id)
         this.connections.delete(id)
-        if (this.onPeerUpdateCallback) this.onPeerUpdateCallback()
+        this.notifyPeersUpdate()
       })
 
-      if (this.onPeerUpdateCallback) this.onPeerUpdateCallback()
+      this.notifyPeersUpdate()
     })
 
     this.swarm.on('update', () => {
       console.log('update peers')
-      // todo: why it keeps triggering so often?
-      if (this.onPeerUpdateCallback) this.onPeerUpdateCallback()
+      this.notifyPeersUpdate()
     })
+  }
+
+  notifyPeersUpdate() {
+    const now = Date.now()
+    
+    if (this.notifyTimeout) {
+      clearTimeout(this.notifyTimeout)
+    }
+
+    if (now - this.lastNotifyTime >= 1000) {
+      this.lastNotifyTime = now
+      if (this.onPeerUpdateCallback) this.onPeerUpdateCallback()
+    } else {
+      this.notifyTimeout = setTimeout(() => {
+        this.lastNotifyTime = Date.now()
+        if (this.onPeerUpdateCallback) this.onPeerUpdateCallback()
+      }, 1000 - (now - this.lastNotifyTime))
+    }
+  }
+
+  getPeers() {
+    return Array.from(this.peers.values())
   }
 
   onPeerUpdate(callback) {
@@ -85,11 +108,10 @@ export class NetworkService {
   }
 
   destroy() {
+    if (this.notifyTimeout) {
+      clearTimeout(this.notifyTimeout)
+    }
     return this.swarm.destroy()
-  }
-
-  getPeers() {
-    return Array.from(this.peers.values())
   }
 
   getConnectionInfo() {

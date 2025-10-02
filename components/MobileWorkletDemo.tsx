@@ -66,6 +66,11 @@ export default function MobileWorkletDemo(): React.ReactElement {
     workletRef.current = worklet;
 
     const rpc = new RPC(IPC, (req) => {
+      const message = JSON.parse(b4a.toString(req.data).toString());
+
+      console.log("message", message)
+
+
       if (req.command === RPC_SWARM_JOINED) {
         console.log('swarm joined');
         setIsConnecting(false);
@@ -73,15 +78,7 @@ export default function MobileWorkletDemo(): React.ReactElement {
       }
 
       if (req.command === RPC_PEERS_UPDATED) {
-        if (!req.data) {
-          return;
-        }
-
-        const data = b4a.toString(req.data);
-        const peers = JSON.parse(data.toString());
-
-        console.log('peers updated', peers);
-        setPeers(peers);
+        console.warn('RPC_PEERS_UPDATED: implement');
       }
 
       if (req.command === RPC_RESET) {
