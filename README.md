@@ -1,113 +1,95 @@
 # Pear Cross Platform Template
 
-Target Platforms: Desktop, Mobile (iOS, Android)
+A cross-platform template that demonstrates how to use Pear by Holepunch with a single codebase for Expo, React Native, Web, and Desktop.
 
-A cross-platform template that demonstrates how to use React Native, TypeScript, and Electron in the same project. This template allows you to write code once and deploy it across multiple platforms: desktop (Windows, macOS, Linux), mobile (iOS, Android), and web.
+This template allows you to write code once and deploy it across multiple platforms: desktop (Windows, macOS, Linux), mobile (iOS, Android), and web.
 
 ### Prerequisites
 
 - **Node.js version 22.14.0** (required)
+- **Pear 1.18.0**
 
-### Installation
+### Desktop
 
-Install dependencies:
 ```bash
+   node --version
+   pear --v
    npm install
+   npm run desktop
+```
+
+### Mobile
+
+Haven’t tested this on iOS, but it should work the same way—just need to add the iOS script to package.json.
+
+```bash
+   node --version
+   pear --v
+   npm install
+   npm run android
+```
+
+### Web
+
+The fastest option for UI development. Doesn’t have Pear connection, but theoretically it’s possible to add it by creating a server that hosts Pear (perhaps in the future?)
+
+```bash
+   node --version
+   pear --v
+   npm install
+   npm run web
 ```
 
 ## How It Works
 
-This project leverages Expo's web bundle capabilities combined with Electron to create a unified cross-platform application. Here's the architecture:
+This project leverages Expo's web bundle capabilities to create a unified cross-platform application. Here's the architecture:
 
 ### Architecture Overview
 
-1. **Expo Web Bundle**: Expo compiles your React Native code into a web-compatible bundle using `react-native-web`, which translates React Native components into standard web components (HTML, CSS, JS).
+Expo compiles your React Native code into a web-compatible bundle using `react-native-web`, which translates React Native components into standard web components (HTML, CSS, JS).
 
-2. **Electron Wrapper**: Electron serves as a desktop wrapper that loads the web bundle, essentially running a Chromium browser in a native desktop window.
+Pear serves generated static files.
 
-3. **Shared Codebase**: The same TypeScript/React Native code runs across all platforms:
-   - **Mobile**: Native iOS/Android apps via Expo
-   - **Web**: Direct browser access via the web bundle
-   - **Desktop**: Electron loading the web bundle in a native window
+Platform-specific components need to be either lazy loaded or conditionally excluded from rendering.
 
-### Development Workflow
-
-When you run `npm run dev:desktop`, the following happens:
-
-1. **Web Server**: Starts Expo's development server on `http://localhost:8081` serving the web bundle
-2. **Electron Window**: Launches Electron which loads the web bundle from the local server
-3. **Dual Preview**: You get both:
-   - A web browser window showing your app
-   - An Electron desktop window showing the same app
-
-Both windows reflect the same codebase and update simultaneously during development.
-
-### quickstart
-
-This will open up Pear app built from expo web bundle. (no hot reloading)
+Conditional rendering:
 
 ```
-npm run build:web
-npm run dev:pear
+export default function PeersWorkletDemoScreen(props: Props): React.ReactElement {
+  const {} = props;
+  const [MobileWorkletDemo, setMobileWorkletDemo] = useState<React.ComponentType | null>(null);
+
+  useEffect((): void => {
+    if (Platform.OS !== 'web') {
+      // Only import on mobile platforms
+      import('@/components/MobileWorkletDemo')
+        .then((module) => {
+          setMobileWorkletDemo(() => module.default);
+        })
+        .catch((error) => {
+          console.error('Failed to load MobileWorkletDemo:', error);
+        });
+    } 
+  }, []);
+
+  console.log("PeersWorkletDemoScreen v41");
+
+  return (
+    <View style={styles.container}>
+      
+      <View style={styles.demoContainer}>
+        {Platform.OS !== 'web' && MobileWorkletDemo && <MobileWorkletDemo />}
+        {Platform.OS === 'web' && <DesktopWorkletDemo />}
+      </View>
+    </View>
+  );
+}
 ```
 
-### Project Tree
+### TODO
 
+1. Pear utilizes Pear.worker.run, which relies on pipe technology. In contrast, react-native-bare-kit uses Worklet and RPC. This means the communication specifications differ slightly, including on the backend side. We’ve implemented some wrappers to unify the logic and create a consistent interface, but there’s room for improvement.
 
-```
-pear-cross-platform-template
-├─ README.md
-├─ app
-│  ├─ (tabs)
-│  │  ├─ _layout.tsx
-│  │  ├─ index.tsx
-│  │  └─ two.tsx
-│  ├─ +html.tsx
-│  ├─ +not-found.tsx
-│  ├─ _layout.tsx
-│  └─ modal.tsx
-├─ app.json
-├─ assets
-│  ├─ fonts
-│  │  └─ SpaceMono-Regular.ttf
-│  └─ images
-│     ├─ adaptive-icon.png
-│     ├─ favicon.png
-│     ├─ icon.png
-│     └─ splash-icon.png
-├─ components
-│  ├─ EditScreenInfo.tsx
-│  ├─ ExternalLink.tsx
-│  ├─ StyledText.tsx
-│  ├─ Themed.tsx
-│  ├─ __tests__
-│  │  └─ StyledText-test.js
-│  ├─ useClientOnlyValue.ts
-│  ├─ useClientOnlyValue.web.ts
-│  ├─ useColorScheme.ts
-│  └─ useColorScheme.web.ts
-├─ constants
-│  └─ Colors.ts
-├─ dist-web
-│  ├─ _expo
-│  │  └─ static
-│  │     ├─ css
-│  │     │  └─ modal.module-33361d5c796745334f151cac6c469469.css
-│  │     └─ js
-│  │        └─ web
-│  │           └─ entry-445b9f5c5b18541207a554e516c433a7.js
-│  ├─ assets
-│  │  └─ assets
-│  │     └─ fonts
-│  │        └─ SpaceMono-Regular.49a79d66bdea2debf1832bf4d7aca127.ttf
-│  ├─ favicon.ico
-│  ├─ index.html
-│  └─ metadata.json
-├─ electron
-│  ├─ main.js
-│  └─ preload.js
-├─ package-lock.json
-├─ package.json
-└─ tsconfig.json
+2. Haven’t tested the peer release and staging yet, but it should probably work.
 
-```
+3. ... and more
