@@ -6,6 +6,7 @@ import ConnectedPairsDisplay from '@/components/ConnectedPairsDisplay';
 import JoinButton from '@/components/JoinButton';
 import JoiningSwarmLoader from '@/components/JoiningSwarmLoader';
 import LeaveButton from '@/components/LeaveButton';
+import { useWorklet } from '@/hooks/useWorklet';
 
 interface Props {}
 
@@ -60,7 +61,7 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
 
   return (
     <View style={styles.container}>
-      <ConnectedPairsDisplay peerCount={peersCount} />
+      <ConnectedPairsDisplay peersCount={peersCount} />
       <View style={styles.buttonContainer}>
         {isDestroyLoading && <ActivityIndicator />}
         {!isDestroyLoading && (

@@ -30,7 +30,7 @@ interface UseWorkletReturn {
   disconnect: () => Promise<void>;
 }
 
-export function useWorklet(config: UseWorkletConfig): UseWorkletReturn {
+export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
   const { onPeersUpdated } = config;
   
   const [status, setStatus] = useState<WorkletStatus>(WorkletStatus.offline);

@@ -3,15 +3,15 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface Props {
-  peerCount: number;
+  peersCount: number;
 }
 
 const ConnectedPairsDisplay = (props: Props): React.ReactElement => {
-  const { peerCount } = props;
+  const { peersCount } = props;
   
   return (
     <View style={styles.container}>
-      <Text style={styles.connectedText}>Connected, {peerCount} 🍐 online</Text>
+      <Text style={styles.connectedText}>Connected, {peersCount} 🍐 online</Text>
     </View>
   );
 };
