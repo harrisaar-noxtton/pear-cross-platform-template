@@ -6,7 +6,6 @@ import ConnectedPairsDisplay from '@/components/ConnectedPairsDisplay';
 import JoinButton from '@/components/JoinButton';
 import JoiningSwarmLoader from '@/components/JoiningSwarmLoader';
 import LeaveButton from '@/components/LeaveButton';
-import { useWorkletDesktop } from '@/hooks/useWorkletDesktop';
 
 interface Props {}
 
@@ -22,7 +21,7 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
   const [peersCount, setPeersCount] = useState<number>(0);
   const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
 
-  const { status, disconnect, connect } = useWorkletDesktop({
+  const { status, disconnect, connect } = useWorklet({
     onPeersUpdated: (peersCount: number) => {
       setPeersCount(peersCount);
     }
