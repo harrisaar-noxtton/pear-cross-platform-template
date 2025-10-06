@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { PRIMARY_BLACK_COLOR } from '@/constants/Colors';
 import ConnectedPairsDisplay from '@/components/ConnectedPairsDisplay';
 import JoinButton from '@/components/JoinButton';
 import JoiningSwarmLoader from '@/components/JoiningSwarmLoader';
 import LeaveButton from '@/components/LeaveButton';
+import { useWorklet } from '@/hooks/useWorklet';
 
 interface Props {}
 
@@ -21,25 +22,36 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
   const [peersCount, setPeersCount] = useState<number>(0);
   const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
 
-  const { status, disconnect, connect} = useWorklet({
-    onPeersUpdated: (peersCount: number) => 'implement'
-  })
-
-  console.log("PeersWorkletDemoScreen v42");
+  const { status, disconnect, connect } = useWorklet({
+    onPeersUpdated: (peersCount: number) => {
+      setPeersCount(peersCount);
+    }
+  });
 
   const handleJoinNetwork = async (): Promise<void> => {
-    // TODO: Implement join network logic
+    await connect();
   };
 
   const handleDestroyConnection = async (): Promise<void> => {
-    // TODO: Implement destroy connection logic
+    setIsDestroyLoading(true);
+    await disconnect();
   };
 
-  if (isConnecting) {
-    return <JoiningSwarmLoader />;
+  React.useEffect(() => {
+    if (status === WorkletStatus.offline && isDestroyLoading) {
+      setIsDestroyLoading(false);
+    }
+  }, [status, isDestroyLoading]);
+
+  if (status === WorkletStatus.connecting) {
+    return (
+      <View style={styles.container}>
+        <JoiningSwarmLoader />
+      </View>
+    )
   }
 
-  if (!isSwarmJoined) {
+  if (status === WorkletStatus.offline) {
     return (
       <View style={styles.container}>
         <JoinButton onPress={handleJoinNetwork} />
