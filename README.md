@@ -40,6 +40,16 @@ The fastest option for UI development. Doesn’t have Pear connection, but theor
    npm run web
 ```
 
+### Desktop staging
+
+```
+pear -v
+node --version
+npm install
+npm run build:web
+pear stage dev
+```
+
 ## How It Works
 
 This project leverages Expo's web bundle capabilities to create a unified cross-platform application. Here's the architecture:
