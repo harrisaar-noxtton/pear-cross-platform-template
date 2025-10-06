@@ -1,13 +1,13 @@
 {
   "name": "pear-cross-platform-template",
-  "main": "expo-router/entry",
+  "main": "dist-web/index.html",
   "version": "1.0.0",
   "scripts": {
     "build-pear-end": "npx bare-pack --target ios --target android --linked --out components/app.bundle.mjs backend/backend.mjs",
     "set-main-expo": "node scripts/change-package-main-value.js 'expo-router/entry'",
     "set-main-pear": "node scripts/change-package-main-value.js 'dist-web/index.html'",
     "fix-paths": "node scripts/fix-expo-build-paths.js",
-    "build:web": "npm run set-main-expo && expo export --platform web --output-dir dist-web && npm run fix-paths",
+    "build:web": "npm run set-main-expo && expo export --platform web --output-dir dist-web && npm run fix-paths && npm run set-main-pear",
     "desktop": "npm run build-pear-end && npm run build:web && npm run set-main-pear && pear run --dev .",
     "android": "npm run build-pear-end && npm run set-main-expo && expo run:android",
     "web": "npm run set-main-expo && expo start --web"
@@ -23,7 +23,12 @@
     },
     "stage": {
       "entrypoints": [
-        "index.html"
+        "dist-web/index.html"
+      ],
+      "ignore": [
+        "./node_modules",
+        "./android",
+        ".git"
       ],
       "prefetch": [
         "dist-web/**/*"
