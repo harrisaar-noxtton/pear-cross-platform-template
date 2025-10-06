@@ -9,15 +9,21 @@ import LeaveButton from '@/components/LeaveButton';
 
 interface Props {}
 
+export enum WorkletStatus {
+  offline = "offline",
+  online = "online",
+  connecting = "connecting"
+}
+
 export default function PeersWorkletDemoScreen(props: Props): React.ReactElement {
   const {} = props;
   
-  const [isConnecting, setIsConnecting] = useState<boolean>(false);
-  const [isSwarmJoined, setIsSwarmJoined] = useState<boolean>(false);
   const [peersCount, setPeersCount] = useState<number>(0);
   const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
-  const rpcRef = useRef<any>(null);
-  const workletRef = useRef<any>(null);
+
+  const { status, disconnect, connect} = useWorklet({
+    onPeersUpdated: (peersCount: number) => 'implement'
+  })
 
   console.log("PeersWorkletDemoScreen v42");
 
