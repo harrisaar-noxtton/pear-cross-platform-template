@@ -52,44 +52,21 @@ Pear serves generated static files.
 
 Platform-specific components need to be either lazy loaded or conditionally excluded from rendering.
 
-Conditional rendering:
+In this template `useWorklet` conditionally returns platform specific worklet hook. Since mobile is using `react-native-bare-kit`, it would not compile.
 
 ```
-export default function PeersWorkletDemoScreen(props: Props): React.ReactElement {
-  const {} = props;
-  const [MobileWorkletDemo, setMobileWorkletDemo] = useState<React.ComponentType | null>(null);
-
-  useEffect((): void => {
-    if (Platform.OS !== 'web') {
-      // Only import on mobile platforms
-      import('@/components/MobileWorkletDemo')
-        .then((module) => {
-          setMobileWorkletDemo(() => module.default);
-        })
-        .catch((error) => {
-          console.error('Failed to load MobileWorkletDemo:', error);
-        });
-    } 
-  }, []);
-
-  console.log("PeersWorkletDemoScreen v41");
-
-  return (
-    <View style={styles.container}>
-      
-      <View style={styles.demoContainer}>
-        {Platform.OS !== 'web' && MobileWorkletDemo && <MobileWorkletDemo />}
-        {Platform.OS === 'web' && <DesktopWorkletDemo />}
-      </View>
-    </View>
-  );
+export function useWorklet(config: UseWorkletConfig): UseWorkletReturn {
+  if (Platform.OS === 'web') {
+    const { useWorkletDesktop } = require('./useWorkletDesktop');
+    return useWorkletDesktop(config);
+  } else {
+    const { useWorkletMobile } = require('./useWorkletMobile');
+    return useWorkletMobile(config);
+  }
 }
+
+// Later in code:
+
+const { status, disconnect, connect } = useWorklet(...)
+
 ```
-
-### TODO
-
-1. Pear utilizes Pear.worker.run, which relies on pipe technology. In contrast, react-native-bare-kit uses Worklet and RPC. This means the communication specifications differ slightly, including on the backend side. We’ve implemented some wrappers to unify the logic and create a consistent interface, but there’s room for improvement.
-
-2. Haven’t tested the Pear release and staging yet, but it should probably work.
-
-3. ... and more
