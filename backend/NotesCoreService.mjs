@@ -13,7 +13,7 @@ export class NotesCoreService {
   }
 
   async initialize() {
-    console.log('initialize()')
+    console.log('initialize() path: ', this.storagePath)
 
     if (this.initialized) {
       console.log('initialize() returning early - already initialized')

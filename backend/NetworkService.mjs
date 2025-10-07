@@ -13,10 +13,10 @@ export class NetworkService {
     this.setupSwarmEvents()
   }
 
-  async joinSwarm(topic) {
-    console.log('join swarm', topic)
+  async joinSwarm(topicBuffer) {
+    console.log('joinSwarm() with buffer:', topicBuffer)
     try {
-      const discovery = this.swarm.join(topic, { client: true, server: true })
+      const discovery = this.swarm.join(topicBuffer, { client: true, server: true })
       await discovery.flushed()
       return discovery
     } catch (e) {

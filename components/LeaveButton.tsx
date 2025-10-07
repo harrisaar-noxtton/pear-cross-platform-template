@@ -13,10 +13,10 @@ const LeaveButton = (props: Props): React.ReactElement => {
   const { isLoading = false, onPress } = props;
 
   return (
-    <TouchableOpacity style={styles.destroyButton} onPress={onPress}>
+    <TouchableOpacity disabled={isLoading} style={styles.destroyButton} onPress={onPress}>
       <View style={styles.leaveButtonContent}>
         <Text style={styles.destroyButtonText}>
-          {isLoading ? 'Leaving...' : 'Leave'}
+          {isLoading ? 'Leaving...' : 'Leave Swarm'}
         </Text>
       </View>
     </TouchableOpacity>

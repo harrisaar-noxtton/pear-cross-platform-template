@@ -1,6 +1,6 @@
+import * as React from 'react';
 import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
-import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface Props {
   onPress: () => void;
@@ -11,42 +11,29 @@ const JoinButton = (props: Props): React.ReactElement => {
   
   return (
     <TouchableOpacity
-      style={styles.joinButtonContainer}
+      style={styles.joinButton}
       onPress={onPress}
     >
-      <View style={styles.circle}>
-        <Text style={styles.pairIcon}>🍐</Text>
-        <Text style={styles.joinText}>Join</Text>
-      </View>
+      <Text style={styles.joinText}>Join Swarm</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  joinButtonContainer: {
-    alignItems: 'center',
-    padding: 10,
-    display: 'flex',
-    height: '100%',
-    justifyContent: 'center'
-  },
-  circle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  joinButton: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
     borderWidth: 2,
     borderColor: PRIMARY_GREEN_COLOR,
     backgroundColor: 'transparent',
     alignItems: 'center',
-    justifyContent: 'center'
-  },
-  pairIcon: {
-    fontSize: 24
   },
   joinText: {
     color: PRIMARY_GREEN_COLOR,
     fontSize: 14,
-    marginTop: 4
+    fontWeight: '600',
   }
 });
 

@@ -9,50 +9,51 @@ import {
   RPC_PEERS_UPDATED,
   RPC_SWARM_JOINED,
   RPC_DESTROY,
-  RPC_DESTROY_SUCCESS
+  RPC_DESTROY_SUCCESS,
+  RPC_CREATE_TOPIC,
+  RPC_CREATE_TOPIC_SUCCESS
 } from '../rpc-commands.mjs';
 import bundle from '../components/app.bundle.mjs';
-import { WorkletStatus } from '@/app/(tabs)/PeersWorkletDemoScreen';
-
-const topicKey = process.env.EXPO_PUBLIC_TOPIC_KEY;
+import { ConnectionStatus } from './useWorklet';
+import { UseWorkletConfig, UseWorkletReturn } from './useWorklet';
 
 interface DataContent {
   peersCount?: number;
+  topicKey?: string;
 }
 
-interface UseWorkletConfig {
-  onPeersUpdated: (peersCount: number) => void;
-}
-
-interface UseWorkletReturn {
-  status: WorkletStatus;
-  connect: () => Promise<void>;
-  disconnect: () => Promise<void>;
+interface PendingRequest {
+  resolve: (value: any) => void;
+  reject: (error: any) => void;
 }
 
 export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
   const { onPeersUpdated } = config;
   
-  const [status, setStatus] = useState<WorkletStatus>(WorkletStatus.offline);
+  const [swarmStatus, setSwarmStatus] = useState<ConnectionStatus>(ConnectionStatus.offline);
+  const [workletStatus, setWorkletStatus] = useState<ConnectionStatus>(ConnectionStatus.offline);
   const rpcRef = useRef<any>(null);
   const workletRef = useRef<any>(null);
+  const pendingCreateTopicRef = useRef<PendingRequest | null>(null);
+  const pendingDestroyRef = useRef<PendingRequest | null>(null);
 
-  const connect = async (): Promise<void> => {
-    console.log('useWorklet: connect called');
-
-    setStatus(WorkletStatus.connecting);
-
-    if (!topicKey) {
-      console.error('Define the topic key in .env file');
-      setStatus(WorkletStatus.offline);
+  const connectWorklet = (): void => {
+    if (workletRef.current) {
+      console.warn('Worklet already connected');
       return;
     }
+
+    console.log('useWorkletMobile: connecting worklet');
+    setWorkletStatus(ConnectionStatus.connecting);
 
     const documentDirectory = Paths.document.uri;
     console.log('document directory', documentDirectory);
 
     const worklet = new Worklet();
-    worklet.start('/app.bundle', bundle, [String(documentDirectory), topicKey]);
+    worklet.start('/app.bundle', bundle, [String(documentDirectory)]);
+
+    console.log("worklet created")
+
     const { IPC } = worklet;
 
     workletRef.current = worklet;
@@ -60,9 +61,19 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
     const rpc = new RPC(IPC, (req) => {
       const dataContent: DataContent = JSON.parse(b4a.toString(req.data).toString());
 
+      console.log("dataContent", dataContent)
+
+      if (req.command === RPC_CREATE_TOPIC_SUCCESS) {
+        console.log('topic key', dataContent?.topicKey);
+        if (pendingCreateTopicRef.current && dataContent?.topicKey) {
+          pendingCreateTopicRef.current.resolve(dataContent.topicKey);
+          pendingCreateTopicRef.current = null;
+        }
+      }
+
       if (req.command === RPC_SWARM_JOINED) {
         console.log('swarm joined');
-        setStatus(WorkletStatus.online);
+        setSwarmStatus(ConnectionStatus.online);
       }
 
       if (req.command === RPC_PEERS_UPDATED) {
@@ -75,23 +86,56 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
           workletRef.current.terminate();
           workletRef.current = null;
         }
-        rpcRef.current = null;
-        setStatus(WorkletStatus.offline);
+        setSwarmStatus(ConnectionStatus.offline);
+        if (pendingDestroyRef.current) {
+          pendingDestroyRef.current.resolve(undefined);
+          pendingDestroyRef.current = null;
+        }
       }
     });
 
     rpcRef.current = rpc;
-
-    const req = rpc.request(RPC_JOIN_SWARM);
-    req.send();
+    setWorkletStatus(ConnectionStatus.online);
   };
 
-  const disconnect = async (): Promise<void> => {
-    console.log('useWorklet: disconnect called');
-    if (rpcRef.current) {
+  const joinSwarm = async (topicKey: string): Promise<void> => {
+    if (!rpcRef.current) {
+      throw new Error('Worklet not connected. Call connectWorklet() first.');
+    }
+
+    if (!topicKey) {
+      throw new Error('Topic key is required');
+    }
+
+    console.log('useWorkletMobile: joining swarm');
+    setSwarmStatus(ConnectionStatus.connecting);
+
+    const req = rpcRef.current.request(RPC_JOIN_SWARM);
+    req.send(JSON.stringify({topicKey}));
+  };
+
+  const leaveSwarm = async (): Promise<void> => {
+    if (!rpcRef.current) {
+      throw new Error('Worklet not connected');
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      pendingDestroyRef.current = { resolve, reject };
       const req = rpcRef.current.request(RPC_DESTROY);
       req.send();
+    });
+  };
+
+  const generateTopic = async (): Promise<string> => {
+    if (!rpcRef.current) {
+      throw new Error('Worklet not connected. Call connectWorklet() first.');
     }
+
+    return new Promise<string>((resolve, reject) => {
+      pendingCreateTopicRef.current = { resolve, reject };
+      const req = rpcRef.current.request(RPC_CREATE_TOPIC);
+      req.send();
+    });
   };
 
   useEffect(() => {
@@ -103,8 +147,11 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
   }, []);
 
   return {
-    status,
-    connect,
-    disconnect
+    swarmStatus,
+    workletStatus,
+    connectWorklet,
+    joinSwarm,
+    leaveSwarm,
+    generateTopic
   };
 }

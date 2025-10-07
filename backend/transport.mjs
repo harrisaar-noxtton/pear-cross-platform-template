@@ -19,23 +19,13 @@ function getTransportType() {
   return 'desktop';
 }
 
-function getTopic() {
-  const transportType = getTransportType();
-  
-  if (transportType === 'desktop') {
-    const pipeArgs = Bare.argv.slice().reverse();
-    return pipeArgs[0];
-  } else {
-    return Bare.argv[1];
-  }
-}
-
 function getStoragePath() {
   const transportType = getTransportType();
   
   if (transportType === 'desktop') {
     const pipeArgs = Bare.argv.slice().reverse();
-    return pipeArgs[1];
+    // no more token, give, so it is first.
+    return pipeArgs[0];
   } else {
     return Bare.argv[0];
   }
@@ -44,6 +34,11 @@ function getStoragePath() {
 function getRuntimeStoragePath() {
   const transportType = getTransportType();
   const storagePath = getStoragePath();
+
+  console.log("getRuntimeStoragePath", {
+    transportType,
+    storagePath
+  })
   
   if (transportType === 'desktop') {
     return join(storagePath, 'school-notes-app');
@@ -123,7 +118,6 @@ export {
   createTransport, 
   getIpcOrPipe,
   getTransportType,
-  getTopic,
   getStoragePath,
   getRuntimeStoragePath
 }

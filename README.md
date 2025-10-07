@@ -29,6 +29,12 @@ Haven’t tested this on iOS, but it should work the same way—just need to add
    npm run android
 ```
 
+For debugging in another terminal:
+
+```
+adb logcat | grep "bare"
+```
+
 ### Web
 
 The fastest option for UI development. Doesn’t have Pear connection, but theoretically it’s possible to add it by creating a server that hosts Pear (perhaps in the future?)
@@ -46,6 +52,7 @@ The fastest option for UI development. Doesn’t have Pear connection, but theor
 pear -v
 node --version
 npm install
+rm -rf dist-web
 npm run build:web
 pear stage dev
 ```

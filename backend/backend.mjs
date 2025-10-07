@@ -4,6 +4,8 @@ import {
   RPC_APPEND_NOTE_SUCCESS,
   RPC_CHECK_CONNECTION,
   RPC_CHECK_CONNECTION_SUCCESS,
+  RPC_CREATE_TOPIC_SUCCESS,
+  RPC_CREATE_TOPIC,
   RPC_DESTROY,
   RPC_DESTROY_SUCCESS,
   RPC_JOIN_SWARM,
@@ -19,15 +21,17 @@ import {
   createTransport,
   getIpcOrPipe,
   getTransportType,
-  getTopic,
   getRuntimeStoragePath
 } from './transport.mjs'
+import crypto from 'hypercore-crypto' // Cryptographic functions for generating the key in app
 
 console.log("backend.mjs loading")
 
+
+
+
 const ipcOrPipe = getIpcOrPipe();
 const transportType = getTransportType();
-const TOPIC = getTopic();
 const path = getRuntimeStoragePath();
 
 if (transportType === 'mobile') {
@@ -89,18 +93,48 @@ networkService.onPeerMessage(async (payload, peerId) => {
   }
 })
 
+function createTopicBuffer(){
+  return crypto.randomBytes(32)
+}
+
 async function handleTransportRequest(req, error) {
   console.log("handleTransportRequest", req.command)
 
+  if (req.command === RPC_CREATE_TOPIC){
+    transport.request(RPC_CREATE_TOPIC_SUCCESS).send(JSON.stringify({
+      message: "topic buffer created", 
+      topicKey: b4a.toString(createTopicBuffer(), 'hex')
+    }))
+  }
+
   if (req.command === RPC_JOIN_SWARM) {
 
-    console.log("handling join swarm request")
+    console.log("v3 handling join swarm request: req.data:", 
+      req.data)
+
+    // desktop already has topicKey
+    let topicKey = req.data.topicKey
+
+    console.log("topicKey directly:", topicKey)
+
+    if(req.data && !topicKey){
+      if (req.data.toString){
+        // Needed for Mobile connection
+        console.log("has string method")
+        console.log("result" , req.data.toString())
+        topicKey = JSON.parse(req.data.toString()).topicKey
+      }
+      else {
+        console.log("has no string method")
+        console.log("result", String(req.data))
+      }
+    }
 
     await notesCoreService.initialize()
 
-    console.log("notes initalized topic is:", TOPIC)
+    console.log("notes initalized topic is:", topicKey)
 
-    const swarmId = b4a.from(TOPIC, 'hex')
+    const swarmId = b4a.from(topicKey, 'hex')
 
     console.log('swarm id', swarmId)
 
@@ -113,9 +147,7 @@ async function handleTransportRequest(req, error) {
     console.log('swarm join event sent')
 
     const messages = await notesCoreService.getNotes()
-
     console.log("messages send", messages)
-    
     sendNotesToUI(messages)
   }
 

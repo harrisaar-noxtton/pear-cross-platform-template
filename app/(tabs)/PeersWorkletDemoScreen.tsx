@@ -1,76 +1,69 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { PRIMARY_BLACK_COLOR } from '@/constants/Colors';
-import ConnectedPairsDisplay from '@/components/ConnectedPairsDisplay';
-import JoinButton from '@/components/JoinButton';
-import JoiningSwarmLoader from '@/components/JoiningSwarmLoader';
-import LeaveButton from '@/components/LeaveButton';
 import { useWorklet } from '@/hooks/useWorklet';
+import SwarmDisplay from '@/components/SwarmDisplay';
+import WorkletDisplay from '@/components/WorkletDisplay';
 
 interface Props {}
-
-export enum WorkletStatus {
-  offline = "offline",
-  online = "online",
-  connecting = "connecting"
-}
 
 export default function PeersWorkletDemoScreen(props: Props): React.ReactElement {
   const {} = props;
   
   const [peersCount, setPeersCount] = useState<number>(0);
-  const [isDestroyLoading, setIsDestroyLoading] = useState<boolean>(false);
+  const [topicKey, setTopicKey] = useState<string>(process.env.EXPO_PUBLIC_TOPIC_KEY || '');
+  const [isLeavingSwarm, setIsLeavingSwarm] = useState<boolean>(false);
 
-  const { status, disconnect, connect } = useWorklet({
+  const { 
+    swarmStatus, 
+    leaveSwarm, 
+    joinSwarm, 
+    generateTopic, 
+    connectWorklet, 
+    workletStatus 
+  } = useWorklet({
     onPeersUpdated: (peersCount: number) => {
       setPeersCount(peersCount);
     }
   });
 
   const handleJoinNetwork = async (): Promise<void> => {
-    await connect();
+    await joinSwarm(topicKey);
   };
 
   const handleDestroyConnection = async (): Promise<void> => {
-    setIsDestroyLoading(true);
-    await disconnect();
+    setIsLeavingSwarm(true);
+    await leaveSwarm();
+    setIsLeavingSwarm(false);
   };
 
-  React.useEffect(() => {
-    if (status === WorkletStatus.offline && isDestroyLoading) {
-      setIsDestroyLoading(false);
-    }
-  }, [status, isDestroyLoading]);
+  const handleGenerateTopic = async (): Promise<void> => {
+    const key = await generateTopic();
+    setTopicKey(key);
+  };
 
-  if (status === WorkletStatus.connecting) {
-    return (
-      <View style={styles.container}>
-        <JoiningSwarmLoader />
-      </View>
-    )
-  }
-
-  if (status === WorkletStatus.offline) {
-    return (
-      <View style={styles.container}>
-        <JoinButton onPress={handleJoinNetwork} />
-      </View>
-    );
-  }
+  const handleConnectWorklet = async (): Promise<void> => {
+    await connectWorklet();
+  };
 
   return (
     <View style={styles.container}>
-      <ConnectedPairsDisplay peersCount={peersCount} />
-      <View style={styles.buttonContainer}>
-        {isDestroyLoading && <ActivityIndicator />}
-        {!isDestroyLoading && (
-          <LeaveButton 
-            isLoading={isDestroyLoading} 
-            onPress={handleDestroyConnection}
-          />
-        )}
-      </View>
+      <WorkletDisplay 
+        workletStatus={workletStatus}
+        onConnectWorklet={handleConnectWorklet}
+      />
+      <SwarmDisplay 
+        workletStatus={workletStatus}
+        swarmStatus={swarmStatus}
+        peersCount={peersCount}
+        topicKey={topicKey}
+        isLeavingSwarm={isLeavingSwarm}
+        onTopicKeyChange={setTopicKey}
+        onGenerateTopic={handleGenerateTopic}
+        onJoinNetwork={handleJoinNetwork}
+        onLeaveSwarm={handleDestroyConnection}
+      />
     </View>
   );
 }
@@ -82,9 +75,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  buttonContainer: {
-    marginTop: 20,
-    alignItems: 'center',
   },
 });
