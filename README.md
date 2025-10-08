@@ -70,20 +70,3 @@ Pear serves generated static files.
 Platform-specific components need to be either lazy loaded or conditionally excluded from rendering.
 
 In this template `useWorklet` conditionally returns platform specific worklet hook. Since mobile is using `react-native-bare-kit`, it would not compile.
-
-```
-export function useWorklet(config: UseWorkletConfig): UseWorkletReturn {
-  if (Platform.OS === 'web') {
-    const { useWorkletDesktop } = require('./useWorkletDesktop');
-    return useWorkletDesktop(config);
-  } else {
-    const { useWorkletMobile } = require('./useWorkletMobile');
-    return useWorkletMobile(config);
-  }
-}
-
-// Later in code:
-
-const { status, disconnect, connect } = useWorklet(...)
-
-```
