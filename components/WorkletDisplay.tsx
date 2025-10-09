@@ -1,7 +1,29 @@
 import * as React from 'react';
-import { StyleSheet, View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
-import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
+import { StyleSheet, View, ActivityIndicator, TouchableOpacity, Text, Platform } from 'react-native';
+import { PRIMARY_BLUE_COLOR, PRIMARY_GREEN_COLOR } from '@/constants/Colors';
 import { ConnectionStatus } from '@/hooks/useWorklet';
+
+// Example how to use platform specific styles.
+const styled = Platform.OS === 'web' 
+  ? require('styled-components').default 
+  : require('styled-components/native').default;
+
+const JoinWorkletButtonStyled = styled(Platform.OS === 'web' ? 'button' : TouchableOpacity)`
+  padding: 12px 20px;
+  border-radius: 8px;
+  border-width: 2px;
+  border-color: ${PRIMARY_GREEN_COLOR};
+  background-color: transparent;
+  align-items: center;
+
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    border-color: ${PRIMARY_BLUE_COLOR};
+  }
+`;
+
 
 interface Props {
   workletStatus: ConnectionStatus;
@@ -14,9 +36,9 @@ const WorkletDisplay = (props: Props): React.ReactElement => {
   if (workletStatus === ConnectionStatus.offline) {
     return (
       <View style={styles.workletSection}>
-        <TouchableOpacity style={styles.workletButton} onPress={onConnectWorklet}>
-          <Text style={styles.workletButtonText}>Join Worklet</Text>
-        </TouchableOpacity>
+        <JoinWorkletButtonStyled onPress={onConnectWorklet} onClick={onConnectWorklet}>
+          <Text style={styles.buttonText}>Join Worklet</Text>
+        </JoinWorkletButtonStyled>
       </View>
     );
   }
@@ -44,23 +66,15 @@ const WorkletDisplay = (props: Props): React.ReactElement => {
 export default WorkletDisplay;
 
 const styles = StyleSheet.create({
+  buttonText: {
+    color: PRIMARY_GREEN_COLOR,
+    fontSize: 14,
+    fontWeight: '600',
+  },
   workletSection: {
     marginBottom: 30,
     alignItems: 'center',
     gap: 10,
-  },
-  workletButton: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: PRIMARY_GREEN_COLOR,
-    backgroundColor: 'transparent',
-  },
-  workletButtonText: {
-    color: PRIMARY_GREEN_COLOR,
-    fontSize: 16,
-    fontWeight: '600',
   },
   workletStatusText: {
     color: PRIMARY_GREEN_COLOR,

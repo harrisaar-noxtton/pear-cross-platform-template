@@ -4,6 +4,8 @@ export const PRIMARY_BLACK_COLOR = '#011501';
 export const PRIMARY_GREEN_COLOR = '#b0d943';
 export const PRIMARY_TEXT_GRAY = '#666666';
 export const PRIMARY_RED_COLOR = '#dc3545';
+export const PRIMARY_BLUE_COLOR = '#357ddcff';
+
 export const OVERLAY_COLOR = 'rgba(0, 0, 0, 0.8)';
 export const WHITE_COLOR = 'white';
 export const INPUT_BACKGROUND_COLOR = '#0a1a0a';
