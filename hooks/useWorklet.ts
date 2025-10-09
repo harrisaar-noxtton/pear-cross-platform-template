@@ -8,7 +8,6 @@ export interface UseWorkletConfig {
 export interface UseWorkletReturn {
   swarmStatus: ConnectionStatus;
   joinSwarm: (topicKey: string) => Promise<void>;
-  leaveSwarm: () => Promise<void>;
   generateTopic: () => Promise<string>;
   connectWorklet: () => void;
   workletStatus: ConnectionStatus;

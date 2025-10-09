@@ -13,11 +13,9 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
   
   const [peersCount, setPeersCount] = useState<number>(0);
   const [topicKey, setTopicKey] = useState<string>(process.env.EXPO_PUBLIC_TOPIC_KEY || '');
-  const [isLeavingSwarm, setIsLeavingSwarm] = useState<boolean>(false);
 
   const { 
     swarmStatus, 
-    leaveSwarm, 
     joinSwarm, 
     generateTopic, 
     connectWorklet, 
@@ -32,11 +30,6 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
     await joinSwarm(topicKey);
   };
 
-  const handleDestroyConnection = async (): Promise<void> => {
-    setIsLeavingSwarm(true);
-    await leaveSwarm();
-    setIsLeavingSwarm(false);
-  };
 
   const handleGenerateTopic = async (): Promise<void> => {
     const key = await generateTopic();
@@ -58,11 +51,9 @@ export default function PeersWorkletDemoScreen(props: Props): React.ReactElement
         swarmStatus={swarmStatus}
         peersCount={peersCount}
         topicKey={topicKey}
-        isLeavingSwarm={isLeavingSwarm}
         onTopicKeyChange={setTopicKey}
         onGenerateTopic={handleGenerateTopic}
         onJoinNetwork={handleJoinNetwork}
-        onLeaveSwarm={handleDestroyConnection}
       />
     </View>
   );

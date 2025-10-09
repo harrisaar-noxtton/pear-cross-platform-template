@@ -8,8 +8,6 @@ import {
   RPC_JOIN_SWARM,
   RPC_PEERS_UPDATED,
   RPC_SWARM_JOINED,
-  RPC_DESTROY,
-  RPC_DESTROY_SUCCESS,
   RPC_CREATE_TOPIC,
   RPC_CREATE_TOPIC_SUCCESS
 } from '../rpc-commands.mjs';
@@ -35,7 +33,6 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
   const rpcRef = useRef<any>(null);
   const workletRef = useRef<any>(null);
   const pendingCreateTopicRef = useRef<PendingRequest | null>(null);
-  const pendingDestroyRef = useRef<PendingRequest | null>(null);
 
   const connectWorklet = (): void => {
     if (workletRef.current) {
@@ -80,18 +77,6 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
         onPeersUpdated(dataContent?.peersCount || 0);
       }
 
-      if (req.command === RPC_DESTROY_SUCCESS) {
-        console.log('RPC_DESTROY_SUCCESS: cleaning up');
-        if (workletRef.current) {
-          workletRef.current.terminate();
-          workletRef.current = null;
-        }
-        setSwarmStatus(ConnectionStatus.offline);
-        if (pendingDestroyRef.current) {
-          pendingDestroyRef.current.resolve(undefined);
-          pendingDestroyRef.current = null;
-        }
-      }
     });
 
     rpcRef.current = rpc;
@@ -112,18 +97,6 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
 
     const req = rpcRef.current.request(RPC_JOIN_SWARM);
     req.send(JSON.stringify({topicKey}));
-  };
-
-  const leaveSwarm = async (): Promise<void> => {
-    if (!rpcRef.current) {
-      throw new Error('Worklet not connected');
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      pendingDestroyRef.current = { resolve, reject };
-      const req = rpcRef.current.request(RPC_DESTROY);
-      req.send();
-    });
   };
 
   const generateTopic = async (): Promise<string> => {
@@ -151,7 +124,6 @@ export function useWorkletMobile(config: UseWorkletConfig): UseWorkletReturn {
     workletStatus,
     connectWorklet,
     joinSwarm,
-    leaveSwarm,
     generateTopic
   };
 }

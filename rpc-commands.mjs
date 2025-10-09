@@ -14,8 +14,5 @@ export const RPC_PEERS_UPDATED = 4
 export const RPC_CHECK_CONNECTION = 5
 export const RPC_CHECK_CONNECTION_SUCCESS = 10
 
-export const RPC_DESTROY = 6
-export const RPC_DESTROY_SUCCESS = 11
-
 export const RPC_CREATE_TOPIC = 12
 export const RPC_CREATE_TOPIC_SUCCESS = 13

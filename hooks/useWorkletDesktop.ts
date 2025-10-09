@@ -4,13 +4,11 @@ import {
   RPC_JOIN_SWARM,
   RPC_PEERS_UPDATED,
   RPC_SWARM_JOINED,
-  RPC_DESTROY,
   RPC_RESET,
   RPC_APPEND_NOTE_SUCCESS,
   RPC_NOTES_RECEIVED,
   RPC_REQUEST_PEER_NOTES_SUCCESS,
   RPC_CHECK_CONNECTION_SUCCESS,
-  RPC_DESTROY_SUCCESS,
   RPC_CREATE_TOPIC_SUCCESS,
   RPC_CREATE_TOPIC
 } from '../rpc-commands.mjs';
@@ -40,7 +38,6 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
   const [workletStatus, setWorkletStatus] = useState<ConnectionStatus>(ConnectionStatus.offline);
   const pipeRef = useRef<any>(null);
   const pendingCreateTopicRef = useRef<PendingRequest | null>(null);
-  const pendingDestroyRef = useRef<PendingRequest | null>(null);
 
   const connectWorklet = (): void => {
     if (pipeRef.current) {
@@ -64,10 +61,6 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
         if (pendingCreateTopicRef.current) {
           pendingCreateTopicRef.current.reject(error);
           pendingCreateTopicRef.current = null;
-        }
-        if (pendingDestroyRef.current) {
-          pendingDestroyRef.current.reject(error);
-          pendingDestroyRef.current = null;
         }
       });
 
@@ -121,18 +114,6 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
           console.warn('RPC_CHECK_CONNECTION_SUCCESS: implement');
         }
 
-        if (dataPayload.command === RPC_DESTROY_SUCCESS) {
-          console.log('RPC_DESTROY_SUCCESS: cleaning up');
-          if (pipeRef.current) {
-            pipeRef.current.destroy();
-            pipeRef.current = null;
-          }
-          setSwarmStatus(ConnectionStatus.offline);
-          if (pendingDestroyRef.current) {
-            pendingDestroyRef.current.resolve(undefined);
-            pendingDestroyRef.current = null;
-          }
-        }
       } catch (error) {
         console.error('Error parsing pipe message:', error);
         console.log(
@@ -165,18 +146,6 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
     pipeRef.current.write(JSON.stringify(joinMessage));
   };
 
-  const leaveSwarm = async (): Promise<void> => {
-    if (!pipeRef.current) {
-      throw new Error('Worklet not connected');
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      pendingDestroyRef.current = { resolve, reject };
-      const destroyMessage = { command: RPC_DESTROY };
-      pipeRef.current.write(JSON.stringify(destroyMessage));
-    });
-  };
-
   const generateTopic = async (): Promise<string> => {
     if (!pipeRef.current) {
       throw new Error('Worklet not connected. Call connectWorklet() first.');
@@ -191,7 +160,6 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
 
   return {
     joinSwarm,
-    leaveSwarm,
     swarmStatus,
     generateTopic,
     connectWorklet,

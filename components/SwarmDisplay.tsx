@@ -14,11 +14,9 @@ interface Props {
   swarmStatus: ConnectionStatus;
   peersCount: number;
   topicKey: string;
-  isLeavingSwarm: boolean;
   onTopicKeyChange: (value: string) => void;
   onGenerateTopic: () => Promise<void>;
   onJoinNetwork: () => Promise<void>;
-  onLeaveSwarm: () => Promise<void>;
 }
 
 const SwarmDisplay = (props: Props): React.ReactElement => {
@@ -27,11 +25,9 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
     swarmStatus,
     peersCount,
     topicKey,
-    isLeavingSwarm,
     onTopicKeyChange,
     onGenerateTopic,
     onJoinNetwork,
-    onLeaveSwarm
   } = props;
 
   const handleCopyTopicKey = async (): Promise<void> => {
@@ -70,12 +66,6 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
         <TouchableOpacity onPress={handleCopyTopicKey} style={styles.copyButton}>
           <Text style={{color: "white"}}>Copy</Text>
         </TouchableOpacity>
-      </View>
-      <View style={styles.buttonContainer}>
-        <LeaveButton 
-          isLoading={isLeavingSwarm} 
-          onPress={onLeaveSwarm}
-        />
       </View>
     </View>
   );

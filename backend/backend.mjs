@@ -6,8 +6,6 @@ import {
   RPC_CHECK_CONNECTION_SUCCESS,
   RPC_CREATE_TOPIC_SUCCESS,
   RPC_CREATE_TOPIC,
-  RPC_DESTROY,
-  RPC_DESTROY_SUCCESS,
   RPC_JOIN_SWARM,
   RPC_NOTES_RECEIVED,
   RPC_PEERS_UPDATED,
@@ -28,8 +26,6 @@ import crypto from 'hypercore-crypto' // Cryptographic functions for generating 
 console.log("backend.mjs loading")
 
 
-
-
 const ipcOrPipe = getIpcOrPipe();
 const transportType = getTransportType();
 const path = getRuntimeStoragePath();
@@ -43,20 +39,9 @@ if (transportType === 'mobile') {
 console.log("Path", path)
 console.log("Transport type:", transportType)
 
-// TODO: this should not be here
-Bare.on('teardown', async () => {
-  console.log('teardown')
-  await destroyConnections()
-})
-
 const networkService = new NetworkService()
 const notesCoreService = new NotesCoreService(path)
 let transport;
-
-async function destroyConnections() {
-  await networkService.destroy()
-  await notesCoreService.close()
-}
 
 function sendNotesToUI(notes) {
   const req = transport.request(RPC_NOTES_RECEIVED)
@@ -172,12 +157,6 @@ async function handleTransportRequest(req, error) {
 
   }
 
-  if (req.command === RPC_DESTROY) {
-    console.log('destroying')
-    await destroyConnections()
-    console.log("send destroy")
-    transport.request(RPC_DESTROY_SUCCESS).send(JSON.stringify({message: "rpc destroyed success"}))
-  }
 }
 
 transport = createTransport(transportType, ipcOrPipe, handleTransportRequest);
