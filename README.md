@@ -6,7 +6,7 @@ This template allows you to write code once and deploy it across multiple platfo
 
 ### Prerequisites
 
-- **Node.js version 22.14.0** (required)
+- **Node.js version 22.14.0** 
 - **Pear 1.18.0**
 
 ### Desktop
