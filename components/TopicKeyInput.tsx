@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { INPUT_BACKGROUND_COLOR, PRIMARY_GREEN_COLOR, PLACEHOLDER_COLOR } from '@/constants/Colors';
+import PasteButton from '@/components/PasteButton';
 
 interface Props {
   value: string;
@@ -9,6 +11,11 @@ interface Props {
 
 const TopicKeyInput = (props: Props): React.ReactElement => {
   const { value, onChangeText } = props;
+
+  const handlePaste = async (): Promise<void> => {
+    const clipboardContent = await Clipboard.getStringAsync();
+    onChangeText(clipboardContent);
+  };
 
   return (
     <View style={styles.container}>
@@ -21,6 +28,7 @@ const TopicKeyInput = (props: Props): React.ReactElement => {
         autoCapitalize="none"
         autoCorrect={false}
       />
+      <PasteButton onPress={handlePaste} />
     </View>
   );
 };
@@ -28,15 +36,19 @@ const TopicKeyInput = (props: Props): React.ReactElement => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-  },
-  input: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: INPUT_BACKGROUND_COLOR,
     borderRadius: 8,
+    borderWidth: 2,
+    borderColor: PRIMARY_GREEN_COLOR,
+    paddingRight: 8,
+  },
+  input: {
+    flex: 1,
     padding: 12,
     fontSize: 13,
     color: PRIMARY_GREEN_COLOR,
-    borderWidth: 2,
-    borderColor: PRIMARY_GREEN_COLOR,
   },
 });
 

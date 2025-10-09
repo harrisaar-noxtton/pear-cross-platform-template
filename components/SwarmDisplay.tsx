@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
 import ConnectedPairsDisplay from '@/components/ConnectedPairsDisplay';
@@ -8,6 +8,7 @@ import JoiningSwarmLoader from '@/components/JoiningSwarmLoader';
 import LeaveButton from '@/components/LeaveButton';
 import TopicKeyInput from '@/components/TopicKeyInput';
 import { ConnectionStatus } from '@/hooks/useWorklet';
+import CopyButton from '@/components/CopyButton';
 
 interface Props {
   workletStatus: ConnectionStatus;
@@ -63,9 +64,7 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
         <Text style={styles.topicKeyText} numberOfLines={1} ellipsizeMode="middle">
           {topicKey}
         </Text>
-        <TouchableOpacity onPress={handleCopyTopicKey} style={styles.copyButton}>
-          <Text style={{color: "white"}}>Copy</Text>
-        </TouchableOpacity>
+        <CopyButton onPress={handleCopyTopicKey} />
       </View>
     </View>
   );
@@ -117,7 +116,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 6,
     maxWidth: 400,
   },
