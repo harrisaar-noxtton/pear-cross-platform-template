@@ -29,7 +29,8 @@
       "ignore": [
         "./node_modules",
         "./android",
-        ".git"
+        ".git",
+        "./docs"
       ],
       "prefetch": [
         "dist-web/**/*"

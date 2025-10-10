@@ -4,6 +4,8 @@ A cross-platform template that demonstrates how to use Pear by Holepunch with a 
 
 This template allows you to write code once and deploy it across multiple platforms: desktop (Windows, macOS, Linux), mobile (iOS, Android), and web.
 
+<video src="docs/cross-platform-demo.webm" width="100%" controls></video>
+
 ### Prerequisites
 
 - **Node.js version 22.14.0** 
@@ -112,3 +114,5 @@ All shortcomings and challenges are manageable.
 5. **Icons**: Expo Vector Icons won't work on desktop, react-icons won't work on mobile, and react-native-icons won't work on desktop. The solution I implemented was to create custom icon components like `PasteIcon.tsx`, where I use `import Svg, { Path, Rect } from 'react-native-svg';` to create new icons. This approach is supported on both platforms.
 
 6. **Backend should be a separate package**: Currently, backend files are located in the same folder as the frontend. It would be better to move them to a separate package with its own dependencies and compilation logic. Right now, the UI package.json contains unnecessary dependencies and build scripts that are only relevant to the backend package, not the UI/Expo components.
+
+**7. Unifying mobile and desktop backend communication**: Mobile uses bare-rpc while desktop uses Pear.worker.run pipe technology for communication, resulting in different communication layers. I am confident that it's possible to implement a better, more unified approach so that we don't need different data structures for sending and receiving information. However, this requires further research.
