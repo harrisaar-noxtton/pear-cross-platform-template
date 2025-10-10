@@ -118,3 +118,5 @@ All shortcomings and challenges are manageable.
 6. **Backend should be a separate package**: Currently, backend files are located in the same folder as the frontend. It would be better to move them to a separate package with its own dependencies and compilation logic. Right now, the UI package.json contains unnecessary dependencies and build scripts that are only relevant to the backend package, not the UI/Expo components.
 
 **7. Unifying mobile and desktop backend communication**: Mobile uses bare-rpc while desktop uses Pear.worker.run pipe technology for communication, resulting in different communication layers. I am confident that it's possible to implement a better, more unified approach so that we don't need different data structures for sending and receiving information. However, this requires further research.
+
+**8. Hot reloading for Pear Desktop dev environment is not currently working**: However, we can get it working with additional time to configure the build environment. Pear only cares about the static files it serves.
