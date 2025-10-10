@@ -4,8 +4,10 @@ A cross-platform template that demonstrates how to use Pear by Holepunch with a 
 
 This template allows you to write code once and deploy it across multiple platforms: desktop (Windows, macOS, Linux), mobile (iOS, Android), and web.
 
-![Cross Platform Demo](https://private-user-images.githubusercontent.com/232359682/499787650-eb801f5c-e6b7-48ed-b798-c69abbdec66b.webm)
 
+[![Cross Platform Demo](./docs/thumbnail_video.png)](./docs/cross-platform-demo.webm)
+
+*Click the thumbnail to play the video*
 
 ### Prerequisites
 
