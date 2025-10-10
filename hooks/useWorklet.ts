@@ -1,3 +1,4 @@
+import { Note } from '@/app/(tabs)/PeersWorkletDemoScreen';
 import * as React from 'react';
 import { Platform } from 'react-native';
 
@@ -11,6 +12,9 @@ export interface UseWorkletReturn {
   generateTopic: () => Promise<string>;
   connectWorklet: () => void;
   workletStatus: ConnectionStatus;
+  notes: Note[];
+  appendNote: (text: string) => Promise<void>;
+  importNotes: () => Promise<void>;
 }
 
 export function useWorklet(config: UseWorkletConfig): UseWorkletReturn {
@@ -22,6 +26,7 @@ export function useWorklet(config: UseWorkletConfig): UseWorkletReturn {
     return useWorkletMobile(config);
   }
 }
+
 export enum ConnectionStatus {
   offline = "offline",
   online = "online",

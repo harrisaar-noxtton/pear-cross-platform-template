@@ -5,8 +5,10 @@ import {
   RPC_PEERS_UPDATED,
   RPC_SWARM_JOINED,
   RPC_RESET,
+  RPC_APPEND_NOTE,
   RPC_APPEND_NOTE_SUCCESS,
   RPC_NOTES_RECEIVED,
+  RPC_REQUEST_PEER_NOTES,
   RPC_REQUEST_PEER_NOTES_SUCCESS,
   RPC_CHECK_CONNECTION_SUCCESS,
   RPC_CREATE_TOPIC_SUCCESS,
@@ -14,6 +16,7 @@ import {
 } from '../rpc-commands.mjs';
 import { ConnectionStatus } from './useWorklet';
 import { UseWorkletConfig, UseWorkletReturn } from './useWorklet';
+import { Note } from '@/app/(tabs)/PeersWorkletDemoScreen';
 
 export interface DataPayload {
   command: number;
@@ -24,6 +27,12 @@ export interface DataContent {
   message?: string;
   peersCount?: number;
   topicKey?: string;
+  notes?: Array<{
+    authorId: string;
+    createdAt: string;
+    messageText: string;
+    timestamp: number;
+  }>;
 }
 
 interface PendingRequest {
@@ -36,8 +45,12 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
 
   const [swarmStatus, setSwarmStatus] = useState<ConnectionStatus>(ConnectionStatus.offline);
   const [workletStatus, setWorkletStatus] = useState<ConnectionStatus>(ConnectionStatus.offline);
+  const [notes, setNotes] = useState<Note[]>([]);
+  
   const pipeRef = useRef<any>(null);
   const pendingCreateTopicRef = useRef<PendingRequest | null>(null);
+  const pendingAppendNoteRef = useRef<PendingRequest | null>(null);
+  const pendingImportNotesRef = useRef<PendingRequest | null>(null);
 
   const connectWorklet = (): void => {
     if (pipeRef.current) {
@@ -61,6 +74,14 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
         if (pendingCreateTopicRef.current) {
           pendingCreateTopicRef.current.reject(error);
           pendingCreateTopicRef.current = null;
+        }
+        if (pendingAppendNoteRef.current) {
+          pendingAppendNoteRef.current.reject(error);
+          pendingAppendNoteRef.current = null;
+        }
+        if (pendingImportNotesRef.current) {
+          pendingImportNotesRef.current.reject(error);
+          pendingImportNotesRef.current = null;
         }
       });
 
@@ -99,15 +120,34 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
         }
 
         if (dataPayload.command === RPC_APPEND_NOTE_SUCCESS) {
-          console.warn('RPC_APPEND_NOTE_SUCCESS: implement');
+          console.log('RPC_APPEND_NOTE_SUCCESS received');
+          if (pendingAppendNoteRef.current) {
+            pendingAppendNoteRef.current.resolve(true);
+            pendingAppendNoteRef.current = null;
+          }
         }
 
         if (dataPayload.command === RPC_NOTES_RECEIVED) {
-          console.warn('RPC_NOTES_RECEIVED: implement');
+          const receivedNotes = dataPayload.data?.notes || [];
+          const formattedNotes: Note[] = receivedNotes.map((note, index) => ({
+            id: `${note.timestamp}-${index}`,
+            authorId: note.authorId,
+            messageText: note.messageText,
+            createdAt: note.createdAt,
+            timestamp: note.timestamp,
+          }));
+
+          console.log('received notes', receivedNotes)
+          console.log("formatted", formattedNotes)
+          setNotes(formattedNotes);
         }
 
         if (dataPayload.command === RPC_REQUEST_PEER_NOTES_SUCCESS) {
-          console.warn('RPC_REQUEST_PEER_NOTES_SUCCESS: implement');
+          console.log('RPC_REQUEST_PEER_NOTES_SUCCESS received');
+          if (pendingImportNotesRef.current) {
+            pendingImportNotesRef.current.resolve(true);
+            pendingImportNotesRef.current = null;
+          }
         }
 
         if (dataPayload.command === RPC_CHECK_CONNECTION_SUCCESS) {
@@ -158,11 +198,46 @@ export function useWorkletDesktop(params: UseWorkletConfig): UseWorkletReturn {
     });
   };
 
+  const appendNote = async (text: string): Promise<void> => {
+    if (!pipeRef.current) {
+      throw new Error('Worklet not connected. Call connectWorklet() first.');
+    }
+
+    if (!text) {
+      throw new Error('Note text is required');
+    }
+
+    console.log('useWorkletDesktop: appendNote:', text);
+
+    return new Promise<void>((resolve, reject) => {
+      pendingAppendNoteRef.current = { resolve, reject };
+      const appendMessage = { command: RPC_APPEND_NOTE, data: { text } };
+      pipeRef.current.write(JSON.stringify(appendMessage));
+    });
+  };
+
+  const importNotes = async (): Promise<void> => {
+    if (!pipeRef.current) {
+      throw new Error('Worklet not connected. Call connectWorklet() first.');
+    }
+
+    console.log('useWorkletDesktop: importNotes');
+
+    return new Promise<void>((resolve, reject) => {
+      pendingImportNotesRef.current = { resolve, reject };
+      const importMessage = { command: RPC_REQUEST_PEER_NOTES };
+      pipeRef.current.write(JSON.stringify(importMessage));
+    });
+  };
+
   return {
     joinSwarm,
     swarmStatus,
     generateTopic,
     connectWorklet,
-    workletStatus
+    workletStatus,
+    notes,
+    appendNote,
+    importNotes
   };
 }

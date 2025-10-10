@@ -1,4 +1,5 @@
 import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_MEDIUM } from '@/constants/Typography';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -18,12 +19,12 @@ const ConnectedPairsDisplay = (props: Props): React.ReactElement => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 6,
     alignItems: 'center'
   },
   connectedText: {
     color: PRIMARY_GREEN_COLOR,
-    fontSize: 16
+    fontSize: FONT_SIZE_MEDIUM
   }
 });
 

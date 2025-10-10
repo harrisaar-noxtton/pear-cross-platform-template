@@ -46,7 +46,11 @@ let transport;
 function sendNotesToUI(notes) {
   const req = transport.request(RPC_NOTES_RECEIVED)
   console.log('send notes', notes)
-  req.send(JSON.stringify(notes || []))
+  req.send(JSON.stringify({
+    message: "sending notes",
+    notes: notes || []
+  }))
+
 }
 
 notesCoreService.onNotesUpdated(async () => {
@@ -109,10 +113,7 @@ async function handleTransportRequest(req, error) {
         console.log("result" , req.data.toString())
         topicKey = JSON.parse(req.data.toString()).topicKey
       }
-      else {
-        console.log("has no string method")
-        console.log("result", String(req.data))
-      }
+
     }
 
     await notesCoreService.initialize()
@@ -137,8 +138,21 @@ async function handleTransportRequest(req, error) {
   }
 
   if (req.command === RPC_APPEND_NOTE) {
-    const data = req.data && req.data.toString ? req.data.toString() : String(req.data)
-    await notesCoreService.appendNote(data)
+    // desktop already has text
+    let text = req.data.text
+
+    console.log("text directly:", text)
+
+    if(req.data && !text){
+      if (req.data.toString){
+        // Needed for Mobile connection
+        console.log("has string method")
+        console.log("result" , req.data.toString())
+        text = JSON.parse(req.data.toString()).text
+      }
+    }
+
+    await notesCoreService.appendNote(text)
     console.log('send appnede')
     transport.request(RPC_APPEND_NOTE_SUCCESS).send(JSON.stringify({message: "notes appended"}))
   }

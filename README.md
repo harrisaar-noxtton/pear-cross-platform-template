@@ -48,13 +48,13 @@ The fastest option for UI development. Doesn’t have Pear connection, but theor
 
 ### Desktop staging
 
-```
-pear -v
-node --version
-npm install
-rm -rf dist-web
-npm run build:web
-pear stage dev
+```bash
+   pear -v
+   node --version
+   npm install
+   rm -rf dist-web
+   npm run build:web
+   pear stage dev
 ```
 
 ## How It Works
@@ -110,3 +110,5 @@ All shortcomings and challenges are manageable.
 4. **Platform-specific features/components**: Usually, if a dependency is well-maintained, it already includes a good compiler for web bundles. For example, animation libraries often work on both Expo and web bundles. However, if some dependencies only work on one platform, the solution is to create two separate components (one for each platform) and conditionally choose which one to use based on the platform.
 
 5. **Icons**: Expo Vector Icons won't work on desktop, react-icons won't work on mobile, and react-native-icons won't work on desktop. The solution I implemented was to create custom icon components like `PasteIcon.tsx`, where I use `import Svg, { Path, Rect } from 'react-native-svg';` to create new icons. This approach is supported on both platforms.
+
+6. **Backend should be a separate package**: Currently, backend files are located in the same folder as the frontend. It would be better to move them to a separate package with its own dependencies and compilation logic. Right now, the UI package.json contains unnecessary dependencies and build scripts that are only relevant to the backend package, not the UI/Expo components.

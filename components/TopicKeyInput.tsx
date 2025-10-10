@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { INPUT_BACKGROUND_COLOR, PRIMARY_GREEN_COLOR, PLACEHOLDER_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_MEDIUM } from '@/constants/Typography';
 import PasteButton from '@/components/PasteButton';
 
 interface Props {
@@ -42,12 +43,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     borderColor: PRIMARY_GREEN_COLOR,
-    paddingRight: 8,
+    paddingRight: 6,
   },
   input: {
     flex: 1,
-    padding: 12,
-    fontSize: 13,
+    padding: 10,
+    fontSize: FONT_SIZE_MEDIUM,
     color: PRIMARY_GREEN_COLOR,
   },
 });

@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, Platform } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, Platform, useWindowDimensions } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_SMALL, FONT_SIZE_LARGE } from '@/constants/Typography';
 import ConnectedPairsDisplay from '@/components/ConnectedPairsDisplay';
 import JoinButton from '@/components/JoinButton';
 import JoiningSwarmLoader from '@/components/JoiningSwarmLoader';
@@ -31,6 +32,9 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
     onJoinNetwork,
   } = props;
 
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 600;
+
   const handleCopyTopicKey = async (): Promise<void> => {
     await Clipboard.setStringAsync(topicKey);
   };
@@ -40,7 +44,11 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
   }
 
   if (swarmStatus === ConnectionStatus.connecting) {
-    return <JoiningSwarmLoader />;
+    return (
+      <View style={styles.loaderContainer}>
+        <JoiningSwarmLoader />
+      </View>
+    );
   }
 
   if (swarmStatus === ConnectionStatus.offline) {
@@ -58,11 +66,11 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
   }
 
   return (
-    <View style={styles.onlineContent}>
+    <View style={[styles.onlineContent, isSmallScreen && styles.onlineContentSmall]}>
       <ConnectedPairsDisplay peersCount={peersCount} />
-      <View style={styles.topicKeyContainer}>
-        <Text style={styles.topicKeyText} numberOfLines={1} ellipsizeMode="middle">
-          {topicKey}
+      <View style={[styles.topicKeyContainer, isSmallScreen && styles.topicKeyContainerSmall]}>
+        <Text style={[styles.topicKeyText, isSmallScreen && styles.topicKeyTextSmall]} numberOfLines={1} ellipsizeMode="middle">
+          {topicKey.slice(0,20).concat("...")}
         </Text>
         <CopyButton onPress={handleCopyTopicKey} />
       </View>
@@ -73,27 +81,37 @@ const SwarmDisplay = (props: Props): React.ReactElement => {
 export default SwarmDisplay;
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    minHeight: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
   offlineContent: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
     maxWidth: 400,
     width: '100%',
   },
   onlineContent: {
     flexDirection: 'column',
     alignItems: 'center',
+    gap: 12,
+  },
+  onlineContentSmall: {
+    gap: 6,
   },
   buttonRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
     width: '100%',
   },
   generateButton: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: PRIMARY_GREEN_COLOR,
@@ -102,7 +120,7 @@ const styles = StyleSheet.create({
   },
   generateButtonText: {
     color: PRIMARY_GREEN_COLOR,
-    fontSize: 14,
+    fontSize: FONT_SIZE_LARGE,
     fontWeight: '600',
   },
   buttonContainer: {
@@ -112,19 +130,25 @@ const styles = StyleSheet.create({
   topicKeyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 6,
-    maxWidth: 400,
+    maxWidth: 300,
+  },
+  topicKeyContainerSmall: {
+    maxWidth: '100%',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
   topicKeyText: {
     flex: 1,
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: FONT_SIZE_SMALL,
     fontFamily: 'monospace',
+  },
+  topicKeyTextSmall: {
+    fontSize: 10,
   },
   copyButton: {
     padding: 4,

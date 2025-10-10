@@ -1,6 +1,6 @@
 {
   "name": "pear-cross-platform-template",
-  "main": "dist-web/index.html",
+  "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
     "build-pear-end": "npx bare-pack --target ios --target android --linked --out components/app.bundle.mjs backend/backend.mjs",

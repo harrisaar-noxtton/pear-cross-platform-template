@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { StyleSheet, View, ActivityIndicator, TouchableOpacity, Text, Platform } from 'react-native';
 import { PRIMARY_BLUE_COLOR, PRIMARY_GREEN_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_MEDIUM } from '@/constants/Typography';
 import { ConnectionStatus } from '@/hooks/useWorklet';
 
-// Example how to use platform specific styles.
 const styled = Platform.OS === 'web' 
   ? require('styled-components').default 
   : require('styled-components/native').default;
 
 const JoinWorkletButtonStyled = styled(Platform.OS === 'web' ? 'button' : TouchableOpacity)`
-  padding: 12px 20px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
   border-width: 2px;
   border-color: ${PRIMARY_GREEN_COLOR};
   background-color: transparent;
@@ -46,8 +46,8 @@ const WorkletDisplay = (props: Props): React.ReactElement => {
   if (workletStatus === ConnectionStatus.connecting) {
     return (
       <View style={styles.workletSection}>
-        <ActivityIndicator size="large" color={PRIMARY_GREEN_COLOR} />
-        <Text style={styles.workletStatusText}>Connecting to Worklet...</Text>
+        <ActivityIndicator size="small" color={PRIMARY_GREEN_COLOR} />
+        <Text style={styles.workletStatusText}>Connecting...</Text>
       </View>
     );
   }
@@ -55,7 +55,7 @@ const WorkletDisplay = (props: Props): React.ReactElement => {
   if (workletStatus === ConnectionStatus.online) {
     return (
       <View style={styles.workletSection}>
-        <Text style={styles.workletStatusText}>Worklet is online</Text>
+        <Text style={styles.workletStatusText}>Worklet Online</Text>
       </View>
     );
   }
@@ -68,17 +68,17 @@ export default WorkletDisplay;
 const styles = StyleSheet.create({
   buttonText: {
     color: PRIMARY_GREEN_COLOR,
-    fontSize: 14,
+    fontSize: FONT_SIZE_MEDIUM,
     fontWeight: '600',
   },
   workletSection: {
-    marginBottom: 30,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 6,
   },
   workletStatusText: {
     color: PRIMARY_GREEN_COLOR,
-    fontSize: 14,
+    fontSize: FONT_SIZE_MEDIUM,
     fontWeight: '500',
   },
 });

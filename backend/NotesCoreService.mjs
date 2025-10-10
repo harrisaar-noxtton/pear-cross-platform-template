@@ -41,15 +41,15 @@ export class NotesCoreService {
     const defaultNotes = [
       {
         text: 'Fire was invented 2 million years ago.',
-        authorId: 'user_teacher_1'
+        authorId: 'system'
       },
       {
         text: 'P2P architecture was popularized by the Internet file sharing system Napster, originally released in 1999.',
-        authorId: 'user_teacher_1'
+        authorId: 'system'
       },
       {
         text: 'React was initially released to the public as an open-source project in May 2013.',
-        authorId: 'user_teacher_1'
+        authorId: 'system'
       }
     ]
     for (const defaultNote of defaultNotes) {

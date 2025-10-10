@@ -2,6 +2,7 @@ import * as React from 'react';
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import CopyIcon from '@/components/CopyIcon';
 import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_MEDIUM } from '@/constants/Typography';
 
 interface Props {
   onPress: () => void;
@@ -10,7 +11,7 @@ interface Props {
 }
 
 const CopyButton = (props: Props): React.ReactElement => {
-  const { onPress, size = 16, color = PRIMARY_GREEN_COLOR } = props;
+  const { onPress, size = 14, color = PRIMARY_GREEN_COLOR } = props;
   const [label, setLabel] = React.useState<string>('Copy');
 
   const handlePress = (): void => {
@@ -35,7 +36,7 @@ export default CopyButton;
 
 const styles = StyleSheet.create({
   button: {
-    padding: 6,
+    padding: 4,
     borderWidth: 1,
     borderColor: PRIMARY_GREEN_COLOR,
     borderRadius: 6,
@@ -44,10 +45,10 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   text: {
-    fontSize: 14,
+    fontSize: FONT_SIZE_MEDIUM,
     fontWeight: '600',
   },
 });

@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { PRIMARY_GREEN_COLOR, WHITE_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_LARGE } from '@/constants/Typography';
 
 interface Props {}
 
@@ -54,15 +55,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20
+    padding: 16
   },
   pairIcon: {
-    fontSize: 32,
-    marginBottom: 20
+    fontSize: 28,
+    marginBottom: 12
   },
   text: {
     color: PRIMARY_GREEN_COLOR,
-    fontSize: 16,
+    fontSize: FONT_SIZE_LARGE,
     textAlign: 'center',
     fontWeight: '500'
   }

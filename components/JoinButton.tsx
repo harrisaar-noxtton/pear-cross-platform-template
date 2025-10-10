@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { PRIMARY_GREEN_COLOR } from '@/constants/Colors';
+import { FONT_SIZE_LARGE } from '@/constants/Typography';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface Props {
@@ -22,8 +23,8 @@ const JoinButton = (props: Props): React.ReactElement => {
 const styles = StyleSheet.create({
   joinButton: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: PRIMARY_GREEN_COLOR,
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
   },
   joinText: {
     color: PRIMARY_GREEN_COLOR,
-    fontSize: 14,
+    fontSize: FONT_SIZE_LARGE,
     fontWeight: '600',
   }
 });
